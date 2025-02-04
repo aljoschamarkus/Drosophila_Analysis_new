@@ -1,0 +1,12 @@
+averaging_method = mode
+output_format = csv
+detect_type = background_subtraction
+meta_encoding = rgb8
+meta_real_width = 1296
+segment_size_filter = [[20,1500]]
+video_conversion_range = [10,-1]
+threshold = 10
+track_max_individuals = 5
+track_max_speed = 80
+track_size_filter = [[80,500]]
+track_threshold = 12
