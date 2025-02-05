@@ -6,8 +6,8 @@ TREX="$CONDA/envs/beta/bin/TRex.app/Contents/MacOS/TRex"
 # Activate conda environment
 source $CONDA/bin/activate beta
 
-MAIN_DIR="/Users/aljoscha/..."
-SETTINGS=".settings"
+MAIN_DIR="$1"
+SETTINGS="$2"
 
 # Loop through all directories in the main directory
 for dir in "$MAIN_DIR"/*/; do
