@@ -1,5 +1,62 @@
 # df.dropna(inplace=True)
 
+'''
+# Define the target condition and genotype
+target_condition = "ConditionX"
+target_genotype = "GenoA"
+
+# Step 1: Filter df_initial to include only the target condition and genotype
+df_filtered = df_initial[
+    (df_initial.index.get_level_values('condition') == target_condition) &
+    (df_initial.index.get_level_values('genotype') == target_genotype)
+]
+
+# Step 2: Identify sub_dirs that belong to the target condition & genotype
+valid_sub_dirs = df_filtered.index.get_level_values('sub_dir').unique()
+
+# Step 3: Filter df_artificial_groups_mapping to keep only groups containing these sub_dirs
+filtered_groups = df_artificial_groups_mapping[
+    df_artificial_groups_mapping['sub_dir'].isin(valid_sub_dirs)
+]
+
+# Step 4: Extract unique group_ids from the filtered groups
+valid_group_ids = filtered_groups['group_id'].unique()
+
+# Step 5: Iterate through only the valid group_ids and extract data
+for idx in valid_group_ids:
+    group_members = filtered_groups[filtered_groups['group_id'] == idx]['sub_dir']
+
+    # Retrieve only relevant group data from df_filtered
+    group_data = df_filtered.loc[df_filtered.index.get_level_values('sub_dir').isin(group_members)]
+
+    print(f"Data for group {idx}:")
+    print(group_data)
+'''
+
+#!/bin/bash
+# script.sh
+# echo "Input received: $1"  # $1 refers to the first argument passed to the script
+
+# import subprocess
+
+
+
+
+
+
+
+
+
+
+
+
+#
+# # Variable in Python
+# input_value = "Hello from Python"
+#
+# # Pass the variable as an argument to the Bash script
+# subprocess.run(["bash", "script.sh", input_value])
+
 
 
 # Visualization
