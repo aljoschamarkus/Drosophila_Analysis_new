@@ -6,26 +6,25 @@ from concurrent.futures import ProcessPoolExecutor
 import numpy as np
 
 # Constants
-COLORS = [['#e41a1c', '#377eb8', '#4daf4a'], ['#fbb4ae', '#a6cee3', '#b2df8a']]
-DISTANCE_THRESHOLD = 1  # Distance threshold for encounters
+# COLORS = [['#e41a1c', '#377eb8', '#4daf4a'], ['#fbb4ae', '#a6cee3', '#b2df8a']]
+DISTANCE_THRESHOLD = 0.5  # Distance threshold for encounters
+
+COLORS = ['red', 'orange', 'blue', 'cyan', 'green', 'limegreen']
+
+MIN_ENCOUNTER_DURATION = 15
+MAX_DURATION_THRESHOLD = 1200
 
 # --- Utility Functions ---
 def calculate_encounter_metrics(df, group_id, distance_threshold):
-    """
-    Calculate encounter frequency and durations for a specific group_id.
-    """
     group_df = df.xs(group_id, level='group_id')
     distances_per_frame = []
 
-    # Loop through frames and calculate pairwise distances
     for frame in group_df.index.get_level_values('frame').unique():
         frame_df = group_df.xs(frame, level='frame')[['x', 'y']].dropna()
-
-        if len(frame_df) > 1:  # Only calculate distances if >1 individual present
+        if len(frame_df) > 1:
             pairwise_distances = pdist(frame_df.values)
             distances_per_frame.append(pairwise_distances)
 
-    # Flatten the distances for encounter frequency calculation
     all_distances = np.concatenate(distances_per_frame) if distances_per_frame else []
     encounter_frequency = np.mean(all_distances <= distance_threshold) if len(all_distances) > 0 else 0
 
@@ -43,6 +42,9 @@ def calculate_encounter_metrics(df, group_id, distance_threshold):
 
     if current_duration > 0:
         encounter_durations.append(current_duration)
+
+    # Apply the filter to remove long durations
+    encounter_durations = [d for d in encounter_durations if d <= MAX_DURATION_THRESHOLD]
 
     return encounter_frequency, encounter_durations
 
@@ -111,56 +113,148 @@ def plot_encounter_metrics(genotypes, freq_actual, freq_artificial, dur_actual, 
     if selected_lines is None:
         selected_lines = [(genotype, "actual") for genotype in genotypes] + [(genotype, "artificial") for genotype in genotypes]
 
-    # Plot encounter frequencies
-    for idx, (genotype, group_type) in enumerate(selected_lines):
-        if group_type == "actual":
-            sns.kdeplot(
-                freq_actual[genotype],
-                label=f"Actual {genotype}",
-                color=COLORS[0][idx % len(COLORS[0])],
-                linestyle='-'
-            )
-        elif group_type == "artificial":
-            sns.kdeplot(
-                freq_artificial[genotype],
-                label=f"Artificial {genotype}",
-                color=COLORS[1][idx % len(COLORS[1])],
-                linestyle='--'
-            )
-
-    plt.title('Encounter Frequency KDEs')
-    plt.xlabel('Encounter Frequency')
-    plt.ylabel('Density')
-    plt.legend(title='Genotype and Group Type')
-    plt.tight_layout()
-    plt.show()
+    # # Plot encounter frequencies
+    # for idx, (genotype, group_type) in enumerate(selected_lines):
+    #     if group_type == "actual":
+    #         sns.kdeplot(
+    #             freq_actual[genotype],
+    #             label=f"Actual {genotype}",
+    #             color=COLORS[0][idx % len(COLORS)[0]],
+    #             linestyle='-'
+    #         )
+    #     elif group_type == "artificial":
+    #         sns.kdeplot(
+    #             freq_artificial[genotype],
+    #             label=f"Artificial {genotype}",
+    #             color=COLORS[1][idx % len(COLORS[1])],
+    #             linestyle='--'
+    #         )
+    #
+    # plt.title('Encounter Frequency KDEs')
+    # plt.xlabel('Encounter Frequency')
+    # plt.ylabel('Density')
+    # plt.legend(title='Genotype and Group Type')
+    # plt.tight_layout()
+    # plt.show()
 
     # Plot encounter durations
     plt.figure(figsize=(10, 6))
     for idx, (genotype, group_type) in enumerate(selected_lines):
         if group_type == "actual":
+            if genotype == 'WTxCrimson':
+                COLOR = COLORS[0]
+            elif genotype == 'nompCxCrimson':
+                COLOR = COLORS[2]
+            elif genotype == 'nompCxWT':
+                COLOR = COLORS[4]
+
             sns.kdeplot(
                 dur_actual[genotype],
                 label=f"Actual {genotype}",
-                color=COLORS[0][idx % len(COLORS[0])],
+                color=COLOR,
+                linestyle='-'
+            )
+            sns.kdeplot(
+                dur_actual[genotype],
+                label=f"Actual {genotype}",
+                color=COLOR,
                 linestyle='-'
             )
         elif group_type == "artificial":
+            if genotype == 'WTxCrimson':
+                COLOR = COLORS[1]
+            elif genotype == 'nompCxCrimson':
+                COLOR = COLORS[3]
+            elif genotype == 'nompCxWT':
+                COLOR = COLORS[5]
             sns.kdeplot(
                 dur_artificial[genotype],
                 label=f"Artificial {genotype}",
-                color=COLORS[1][idx % len(COLORS[1])],
+                color=COLOR,
                 linestyle='--'
             )
 
     plt.title('Encounter Duration KDEs')
     plt.xlabel('Encounter Duration (Frames)')
     plt.ylabel('Density')
-    plt.xlim(-200, 1000)
+    plt.xlim(-200, 400)
     plt.legend(title='Genotype and Group Type')
     plt.tight_layout()
     plt.show()
 
+# def plot_encounter_metrics(genotypes, freq_actual, freq_artificial, dur_actual, dur_artificial, selected_lines):
+#     """
+#     Plot histograms for encounter frequencies and durations.
+#     """
+#     plt.figure(figsize=(10, 6))
+#
+#     if selected_lines is None:
+#         selected_lines = [(genotype, "actual") for genotype in genotypes] + [(genotype, "artificial") for genotype in genotypes]
+#
+#     # Plot encounter frequencies (Histogram)
+#     for idx, (genotype, group_type) in enumerate(selected_lines):
+#         if group_type == "actual":
+#             plt.hist(
+#                 freq_actual[genotype],
+#                 bins=200,  # Adjust bins as needed
+#                 alpha=0.6,
+#                 label=f"Actual {genotype}",
+#                 color=COLORS[0][idx % len(COLORS[0])],
+#                 density=True  # Normalize to match KDE behavior
+#             )
+#         elif group_type == "artificial":
+#             plt.hist(
+#                 freq_artificial[genotype],
+#                 bins=200,
+#                 alpha=0.6,
+#                 label=f"Artificial {genotype}",
+#                 color=COLORS[1][idx % len(COLORS[1])],
+#                 density=True
+#             )
+#
+#     plt.title('Encounter Frequency Histogram')
+#     plt.xlabel('Encounter Frequency')
+#     plt.ylabel('Density')
+#     plt.legend(title='Genotype and Group Type')
+#     plt.tight_layout()
+#     plt.show()
+#
+#     max_duration = 500  # Example: Set a cutoff for max encounter duration
+#     bins = np.linspace(0, max_duration, 250)  # 30 bins from 0 to max_duration
+#
+#     # Plot encounter durations (Histogram)
+#     plt.figure(figsize=(10, 6))
+#     for idx, (genotype, group_type) in enumerate(selected_lines):
+#         if group_type == "actual":
+#             plt.hist(
+#                 dur_actual[genotype],
+#                 bins=bins,  # More bins for better resolution
+#                 alpha=0.6,
+#                 label=f"Actual {genotype}",
+#                 color=COLORS[0][idx % len(COLORS[0])],
+#                 density=True
+#             )
+#         elif group_type == "artificial":
+#             plt.hist(
+#                 dur_artificial[genotype],
+#                 bins=bins,
+#                 alpha=0.6,
+#                 label=f"Artificial {genotype}",
+#                 color=COLORS[1][idx % len(COLORS[1])],
+#                 density=True
+#             )
+#
+#     plt.title('Encounter Duration Histogram')
+#     plt.xlabel('Encounter Duration (Frames)')
+#     plt.ylabel('Density')
+#     # Ensure that encounter durations are not empty before calling max()
+#     max_actual_duration = max([max(d) for d in list(dur_actual.values()) if d], default=0)
+#     max_artificial_duration = max([max(d) for d in list(dur_artificial.values()) if d], default=0)
+#
+#     plt.xlim(-100, 500)
+#     plt.legend(title='Genotype and Group Type')
+#     plt.tight_layout()
+#     plt.show()
 
 # --- Main Execution ---
 if __name__ == "__main__":
