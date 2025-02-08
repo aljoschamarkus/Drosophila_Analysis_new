@@ -1,3 +1,4 @@
+README.md
 setup.py
 package/__init__.py
 package/config_settings.py

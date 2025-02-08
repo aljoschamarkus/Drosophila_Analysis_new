@@ -3,3 +3,4 @@ Name: package
 Version: 1.0
 Requires-Dist: pandas
 Requires-Dist: numpy
+Requires-Dist: opencv-python
