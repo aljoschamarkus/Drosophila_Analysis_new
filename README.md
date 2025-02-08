@@ -32,3 +32,6 @@ Also:
 - Plot basic movement parameters over Pairwise neighbour distance
   - Point of fitted curves highest second derivation = Encounter Threshold
 - Fill README.md file (make understandable for everybody)
+- Signless midline offset
+- Speed rolling avg into dataframe
+- Manual speed calculation into dataframe
