@@ -1,4 +1,16 @@
 def handle_main_dir(main_directory, condition):
+    """
+    Creates a list of lists containing the directories and the condition for the conditions data,
+    as well as a result directory in the main directory.
+
+    Args:
+        main_directory (str): The main directory containing the conditions subdirectories.
+        condition (list): A list containing the conditions.
+
+    Returns:
+        data structure (list of lists): [[condition0_dir, condition0], [condition1_dir, condition1], results_dir]
+    """
+
     import os
     group_dir, single_dir = None, None  # Initialize variables with default values
 
@@ -19,29 +31,53 @@ def handle_main_dir(main_directory, condition):
     # Return the directories (or None if not found)
     return group_dir, single_dir, results_dir
 
-def create_actual_groups(df_initial, condition):
+
+def create_mapping_actual_groups(df_initial, condition):
+    """
+    Creates actual groups by assigning each 'sub_dir' a unique 'group_id'
+    based on its genotype without bootstrapping.
+
+    Args:
+        df_initial (pd.DataFrame): Multi-indexed DataFrame with levels ['sub_dir', 'condition', 'genotype', 'frame'].
+        condition (str): The condition to filter data for actual groups.
+
+    Returns:
+        pd.DataFrame: A mapping DataFrame with ['sub_dir', 'group_id'].
+    """
     import pandas as pd
-    # actual_condition = condition_dir[0][1]  # Get the condition name for actual groups
-    df_filtered = df_initial[df_initial.index.get_level_values('condition') == condition]  # Filter data for actual groups
+    # Filter for the specified condition
+    df_filtered = df_initial[df_initial.index.get_level_values('condition') == condition]
 
-    grouped_data_actual = []
+    # Store mappings
+    mapping_data = []
 
-    # Iterate over each sub_dir in the filtered DataFrame
+    # Iterate over each 'sub_dir' and assign a group_id
     counter = 0
+    prev_geno_name = None  # Initialize a variable to track the previous genotype
+
     for sub_dir, sub_dir_df in df_filtered.groupby(level='sub_dir'):
-        sub_dir_df = sub_dir_df.copy()
         geno_name = sub_dir_df.index.get_level_values('genotype').unique()[0]
-        sub_dir_df['group_id'] = f"5_{geno_name}_{counter}"  # Assign unique group_id based on sub_dir
-        grouped_data_actual.append(sub_dir_df)
+
+        # If the genotype has changed, reset the counter
+        if geno_name != prev_geno_name:
+            counter = 0
+
+        group_id = f"5_{geno_name}_{counter}"  # Unique group_id
+
+        # Store the mapping
+        mapping_data.append({'sub_dir': sub_dir, 'group_id': group_id})
         counter += 1
 
-    # Concatenate all data for actual groups
-    df_actual_groups = pd.concat(grouped_data_actual, axis=0)
+        # Update the previous genotype to the current one
+        prev_geno_name = geno_name
 
-    return df_actual_groups
+    # Convert to a DataFrame
+    mapping_actual_groups = pd.DataFrame(mapping_data)
+
+    return mapping_actual_groups
 
 
-def create_artificial_groups_bootstrapped(df, condition, group_size, bootstrap_reps=2):
+def create_mapping_artificial_groups_bootstrapped(df, condition, group_size, bootstrap_reps=2):
     """
     Creates artificial groups by bootstrapping within genotypes, but only for data where
     condition == condition_dir[1][0]. Each trial is grouped with group_size - 1
@@ -98,6 +134,7 @@ def create_artificial_groups_bootstrapped(df, condition, group_size, bootstrap_r
                 group_id_counter += 1
 
     # Convert mapping list into a DataFrame
-    group_mapping = pd.DataFrame(mapping_list, columns=['sub_dir', 'group_id'])
+    mapping_artificial_groups_bootstapped = pd.DataFrame(mapping_list, columns=['sub_dir', 'group_id'])
 
-    return group_mapping
+    return mapping_artificial_groups_bootstapped
+
