@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 
 from package.util_df_generation import handle_main_dir
-from package.util_df_generation import create_actual_groups
-from package.util_df_generation import create_artificial_groups_bootstrapped
+from package.util_df_generation import create_mapping_actual_groups
+from package.util_df_generation import create_mapping_artificial_groups_bootstrapped
 
 from package import config_settings
 
@@ -110,29 +110,21 @@ df_initial = df_initial.rename(columns={
     'X#wcentroid (cm)': 'x',
     'Y#wcentroid (cm)': 'y'
 })
+df_initial.to_pickle(os.path.join(condition_dir[2], "data_frame_initial.pkl"))
 
-# Save the final DataFrame to a pickle file
-df_initial_path = os.path.join(condition_dir[2], "data_frame_initial.pkl")
-df_initial.to_pickle(df_initial_path)
-
-df_actual_groups = create_actual_groups(df_initial, condition_dir[0][1])
+mapping_actual_groups = create_mapping_actual_groups(
+    df_initial=df_initial,
+    condition=condition_dir[0][1]
+)
+mapping_actual_groups.to_pickle(os.path.join(condition_dir[2], "mapping_actual_groups.pkl"))
 
 # Example usage of create_artificial_groups_bootstrapped
-df_artificial_groups_mapping = create_artificial_groups_bootstrapped(
+mapping_artificial_groups_bootstrapped = create_mapping_artificial_groups_bootstrapped(
     df=df_initial,
     group_size=group_size,
     bootstrap_reps=bootstrap_reps,  # Apply bootstrapping twice
     condition=condition_dir[1][1]  # Replace with your condition values
 )
+mapping_artificial_groups_bootstrapped.to_pickle(os.path.join(condition_dir[2], "mapping_artificial_groups_bootstrapped.pkl"))
 
-group_id = "1_ID_WTxCrimson_0"
-group_members = df_artificial_groups_mapping[df_artificial_groups_mapping['group_id'] == group_id]['sub_dir']
-print(group_members)
-
-group_data = df_initial.loc[df_initial.index.get_level_values('sub_dir').isin(group_members)]
-print(group_data)
-
-for idx in df_artificial_groups_mapping['group_id'].unique():
-    group_members = df_artificial_groups_mapping[df_artificial_groups_mapping['group_id'] == idx]['sub_dir']
-    group_data = df_initial.loc[df_initial.index.get_level_values('sub_dir').isin(group_members)]
-    print(group_data)
+print(mapping_actual_groups['group_id'].unique())
