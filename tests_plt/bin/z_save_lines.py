@@ -2,6 +2,81 @@
 
 # print(df.index.get_level_values('group_id').unique())
 
+"""hist for encounter debugging"""
+# def plot_encounter_metrics(genotypes, freq_actual, freq_artificial, dur_actual, dur_artificial, selected_lines):
+#     """
+#     Plot histograms for encounter frequencies and durations.
+#     """
+#     plt.figure(figsize=(10, 6))
+#
+#     if selected_lines is None:
+#         selected_lines = [(genotype, "actual") for genotype in genotypes] + [(genotype, "artificial") for genotype in genotypes]
+#
+#     # Plot encounter frequencies (Histogram)
+#     for idx, (genotype, group_type) in enumerate(selected_lines):
+#         if group_type == "actual":
+#             plt.hist(
+#                 freq_actual[genotype],
+#                 bins=200,  # Adjust bins as needed
+#                 alpha=0.6,
+#                 label=f"Actual {genotype}",
+#                 color=COLORS[0][idx % len(COLORS[0])],
+#                 density=True  # Normalize to match KDE behavior
+#             )
+#         elif group_type == "artificial":
+#             plt.hist(
+#                 freq_artificial[genotype],
+#                 bins=200,
+#                 alpha=0.6,
+#                 label=f"Artificial {genotype}",
+#                 color=COLORS[1][idx % len(COLORS[1])],
+#                 density=True
+#             )
+#
+#     plt.title('Encounter Frequency Histogram')
+#     plt.xlabel('Encounter Frequency')
+#     plt.ylabel('Density')
+#     plt.legend(title='Genotype and Group Type')
+#     plt.tight_layout()
+#     plt.show()
+#
+#     max_duration = 500  # Example: Set a cutoff for max encounter duration
+#     bins = np.linspace(0, max_duration, 250)  # 30 bins from 0 to max_duration
+#
+#     # Plot encounter durations (Histogram)
+#     plt.figure(figsize=(10, 6))
+#     for idx, (genotype, group_type) in enumerate(selected_lines):
+#         if group_type == "actual":
+#             plt.hist(
+#                 dur_actual[genotype],
+#                 bins=bins,  # More bins for better resolution
+#                 alpha=0.6,
+#                 label=f"Actual {genotype}",
+#                 color=COLORS[0][idx % len(COLORS[0])],
+#                 density=True
+#             )
+#         elif group_type == "artificial":
+#             plt.hist(
+#                 dur_artificial[genotype],
+#                 bins=bins,
+#                 alpha=0.6,
+#                 label=f"Artificial {genotype}",
+#                 color=COLORS[1][idx % len(COLORS[1])],
+#                 density=True
+#             )
+#
+#     plt.title('Encounter Duration Histogram')
+#     plt.xlabel('Encounter Duration (Frames)')
+#     plt.ylabel('Density')
+#     # Ensure that encounter durations are not empty before calling max()
+#     max_actual_duration = max([max(d) for d in list(dur_actual.values()) if d], default=0)
+#     max_artificial_duration = max([max(d) for d in list(dur_artificial.values()) if d], default=0)
+#
+#     plt.xlim(-100, 500)
+#     plt.legend(title='Genotype and Group Type')
+#     plt.tight_layout()
+#     plt.show()
+
 """
 group_id = "1_ID_WTxCrimson_0"
 group_members = mapping_artificial_groups_bootstrapped[mapping_artificial_groups_bootstrapped['group_id'] == group_id]['sub_dir']
