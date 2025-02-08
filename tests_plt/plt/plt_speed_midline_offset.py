@@ -91,7 +91,7 @@ for cond_idx, cond in enumerate(condition):
         df.dropna(inplace=True)
         midline_offset_plt = df.xs((cond, geno, 'actual'), level=['condition', 'genotype', 'group_type'])['midline_offset'].values
         # color_plt = colors[cond_idx][geno_idx]
-        sns.kdeplot(midline_offset_plt, color=normalized_color_list[counter], fill=True, alpha=0.08, label=f"{cond}_{geno}")
+        sns.kdeplot(midline_offset_plt ** 2, color=normalized_color_list[counter], fill=True, alpha=0.08, label=f"{cond}_{geno}")
 
         # plt.hist(
         #     midline_offset_plt,
@@ -110,7 +110,7 @@ plt.title("Midline Offset Distributions by Condition and Genotype")
 plt.xlim(-1, 18)
 plt.xlabel("Value")
 plt.ylabel("Density")
-plt.xlim(-1,1)
+plt.xlim(-0.1,0.75)
 plt.show()
 
 counter = 0
