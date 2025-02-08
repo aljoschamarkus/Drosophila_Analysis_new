@@ -10,12 +10,14 @@ group_size = 5
 data_len = 7191 # Number of frames
 FPS = 30
 stimulation= [50, 2, "µW/mm^2", 625,"nm"] # [percent max stimulation, max stimulation intensity, unit, wavelength, unit]
-stimulation_used = f"{stimulation[3]}{stimulation[4]}, {stimulation[0] * stimulation[1] * 0.01}{stimulation[2]}"
+stimulation_used = f"{stimulation[3]}{stimulation[4]}, {stimulation[0] * stimulation[1] * 0.01}{stimulation[2]}" # ...nm, ...µW/mm^2
+
 # Chosen parameters
 circle_default = [7, 7, 6.5] # x midpoint, y midpoint, radius
 bootstrap_reps = 2
 unit_xy = "cm"
 unit_speed = "cm/s"
+
 # Chosen plot parameters
 colors = [['red', 'blue', 'green'], ['salmon', 'cornflowerblue', 'mediumseagreen']]
 line_styles = {condition[0]: "-", condition[1]: "--"}  # Line styles for conditions
@@ -25,3 +27,7 @@ color_mapping = {
     for cond, row in zip(condition, colors)
     for geno, color in zip(genotype, row)
 }
+# Chosen Tresholds
+speed_threshold = [0, 3] # cm/s
+encounter_distance_treshold = 0.5 # cm
+encounter_duration_treshold = [0, 2000] # frames
