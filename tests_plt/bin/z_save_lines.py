@@ -1,6 +1,22 @@
 # df.dropna(inplace=True)
 
-'''
+# print(df.index.get_level_values('group_id').unique())
+
+"""
+group_id = "1_ID_WTxCrimson_0"
+group_members = mapping_artificial_groups_bootstrapped[mapping_artificial_groups_bootstrapped['group_id'] == group_id]['sub_dir']
+print(group_members)
+
+group_data = df_initial.loc[df_initial.index.get_level_values('sub_dir').isin(group_members)]
+print(group_data)
+
+for idx in mapping_artificial_groups_bootstrapped['group_id'].unique():
+    group_members = mapping_artificial_groups_bootstrapped[mapping_artificial_groups_bootstrapped['group_id'] == idx]['sub_dir']
+    group_data = df_initial.loc[df_initial.index.get_level_values('sub_dir').isin(group_members)]
+    print(group_data)
+"""
+
+"""
 # Define the target condition and genotype
 target_condition = "ConditionX"
 target_genotype = "GenoA"
@@ -31,7 +47,7 @@ for idx in valid_group_ids:
 
     print(f"Data for group {idx}:")
     print(group_data)
-'''
+"""
 
 #!/bin/bash
 # script.sh
@@ -41,9 +57,28 @@ for idx in valid_group_ids:
 
 
 
+"""actual grou creation df"""
 
-
-
+# def create_actual_groups(df_initial, condition):
+#     import pandas as pd
+#     # actual_condition = condition_dir[0][1]  # Get the condition name for actual groups
+#     df_filtered = df_initial[df_initial.index.get_level_values('condition') == condition]  # Filter data for actual groups
+#
+#     grouped_data_actual = []
+#
+#     # Iterate over each sub_dir in the filtered DataFrame
+#     counter = 0
+#     for sub_dir, sub_dir_df in df_filtered.groupby(level='sub_dir'):
+#         sub_dir_df = sub_dir_df.copy()
+#         geno_name = sub_dir_df.index.get_level_values('genotype').unique()[0]
+#         sub_dir_df['group_id'] = f"5_{geno_name}_{counter}"  # Assign unique group_id based on sub_dir
+#         grouped_data_actual.append(sub_dir_df)
+#         counter += 1
+#
+#     # Concatenate all data for actual groups
+#     df_actual_groups = pd.concat(grouped_data_actual, axis=0)
+#
+#     return df_actual_groups
 
 
 
