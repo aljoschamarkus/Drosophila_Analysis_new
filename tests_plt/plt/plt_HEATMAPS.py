@@ -21,17 +21,20 @@ line_styles = ["-", "--"]
 condition_dir = handle_main_dir(main_dir, condition)
 print(condition_dir)
 
-df = pd.read_pickle('/Users/aljoscha/Downloads/2012_nompC_Crimson_WT_4min_50p_TRex_beta_2101/results/data_frame_final.pkl')
+df = pd.read_pickle('/Users/aljoscha/Downloads/2012_nompC_Crimson_WT_4min_50p_TRex_beta_2101/results/data/data_frame_initial.pkl')
+
+print("Index names:", df.index.names)
+print("Columns:", df.columns.tolist())
 
 frame_bin_size = (data_len + 1) / 2
 grid_size = 0.2
 
 for cond in condition:
     for geno in genotype:
-        x_plt = df.xs((cond, geno, 'actual'),
-                      level=['condition', 'genotype', 'group_type'])['x'].dropna().values
-        y_plt = df.xs((cond, geno, 'actual'),
-                      level=['condition', 'genotype', 'group_type'])['y'].dropna().values
+        x_plt = df.xs((cond, geno),
+                      level=['condition', 'genotype'])['x'].dropna().values
+        y_plt = df.xs((cond, geno),
+                      level=['condition', 'genotype'])['y'].dropna().values
         subset = df.xs((cond, geno), level=['condition', 'genotype']).reset_index()
         frame_plt = subset['frame'].values
         min_frame = frame_plt.min()

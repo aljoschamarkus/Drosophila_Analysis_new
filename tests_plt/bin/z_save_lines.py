@@ -1,6 +1,18 @@
+"""Generally helpful"""
 # df.dropna(inplace=True)
 
 # print(df.index.get_level_values('group_id').unique())
+
+# print("Index names:", df_final.index.names)
+# print("Columns:", df_final.columns.tolist())
+
+# results_plt_specific_dir = os.path.join(condition_dir[2][1], 'specific')
+#     os.makedirs(results_plt_specific_dir, exist_ok=True)
+
+
+
+
+
 
 """hist for encounter debugging"""
 # def plot_encounter_metrics(genotypes, freq_actual, freq_artificial, dur_actual, dur_artificial, selected_lines):
@@ -123,14 +135,6 @@ for idx in valid_group_ids:
     print(f"Data for group {idx}:")
     print(group_data)
 """
-
-#!/bin/bash
-# script.sh
-# echo "Input received: $1"  # $1 refers to the first argument passed to the script
-
-# import subprocess
-
-
 
 """actual grou creation df"""
 
