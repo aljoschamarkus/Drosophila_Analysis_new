@@ -4,7 +4,6 @@ import seaborn as sns
 from scipy.spatial.distance import pdist
 from concurrent.futures import ProcessPoolExecutor
 import numpy as np
-import tqdm
 
 colors = [['#e41a1c', '#377eb8', '#4daf4a'], ['#fbb4ae', '#a6cee3', '#b2df8a']]
 
