@@ -112,13 +112,13 @@ df_initial = df_initial.rename(columns={
     'X#wcentroid (cm)': 'x',
     'Y#wcentroid (cm)': 'y'
 })
-df_initial.to_pickle(os.path.join(condition_dir[2], "data_frame_initial.pkl"))
+df_initial.to_pickle(os.path.join(condition_dir[2][0], "data_frame_initial.pkl"))
 
 mapping_actual_groups = create_mapping_actual_groups(
     df_initial=df_initial,
     condition=condition_dir[0][1]
 )
-mapping_actual_groups.to_pickle(os.path.join(condition_dir[2], "mapping_actual_groups.pkl"))
+mapping_actual_groups.to_pickle(os.path.join(condition_dir[2][0], "mapping_actual_groups.pkl"))
 
 # Example usage of create_artificial_groups_bootstrapped
 mapping_artificial_groups_bootstrapped = create_mapping_artificial_groups_bootstrapped(
@@ -127,7 +127,7 @@ mapping_artificial_groups_bootstrapped = create_mapping_artificial_groups_bootst
     bootstrap_reps=bootstrap_reps,  # Apply bootstrapping twice
     condition=condition_dir[1][1]  # Replace with your condition values
 )
-mapping_artificial_groups_bootstrapped.to_pickle(os.path.join(condition_dir[2], "mapping_artificial_groups_bootstrapped.pkl"))
+mapping_artificial_groups_bootstrapped.to_pickle(os.path.join(condition_dir[2][0], "mapping_artificial_groups_bootstrapped.pkl"))
 
 mapping_semi_artificial_groups_bootstrapped = create_mapping_semi_artificial_groups_bootstrapped(
     df=df_initial,
@@ -135,6 +135,6 @@ mapping_semi_artificial_groups_bootstrapped = create_mapping_semi_artificial_gro
     bootstrap_reps=bootstrap_reps,  # Apply bootstrapping twice
     condition=condition_dir[0][1]  # Replace with your condition values
 )
-mapping_semi_artificial_groups_bootstrapped.to_pickle(os.path.join(condition_dir[2], "mapping_semi_artificial_groups_bootstrapped.pkl"))
+mapping_semi_artificial_groups_bootstrapped.to_pickle(os.path.join(condition_dir[2][0], "mapping_semi_artificial_groups_bootstrapped.pkl"))
 
 print(mapping_semi_artificial_groups_bootstrapped['group_id'].unique())

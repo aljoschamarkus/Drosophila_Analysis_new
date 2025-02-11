@@ -16,8 +16,13 @@ def handle_main_dir(main_directory, condition):
     import os
     group_dir, single_dir = None, None  # Initialize variables with default values
 
-    results_dir = os.path.join(main_directory, 'results')
-    os.makedirs(results_dir, exist_ok=True)
+    results_main_dir = os.path.join(main_directory, 'results')
+    os.makedirs(results_main_dir, exist_ok=True)
+    results_data_dir = os.path.join(results_main_dir, 'data')
+    os.makedirs(results_data_dir, exist_ok=True)
+    results_plt_dir = os.path.join(results_main_dir, 'plt')
+    os.makedirs(results_plt_dir, exist_ok=True)
+    results_dir = [results_data_dir, results_plt_dir]
     # Ensure condition2 has at least two elements
     if not isinstance(condition, (list, tuple)) or len(condition) < 2:
         raise ValueError("condition2 must be a list or tuple with at least two elements.")
