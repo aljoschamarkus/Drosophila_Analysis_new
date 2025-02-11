@@ -6,7 +6,7 @@ from scipy.stats import pearsonr, linregress
 
 # Load data
 df = pd.read_pickle(
-    '/Users/aljoscha/Downloads/2012_nompC_Crimson_WT_4min_50p_TRex_beta_2101/results/data_frame_initial.pkl')
+    '/Users/aljoscha/Downloads/2012_nompC_Crimson_WT_4min_50p_TRex_beta_2101/results/data/data_frame_initial.pkl')
 
 # Extract subset of data
 id = '2024.10.12_06-09-11_4min_50p_WTxCrimson_group_5'

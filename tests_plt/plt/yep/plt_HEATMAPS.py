@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from matplotlib.colors import LogNorm
-from package.util_df_generation import handle_main_dir
+from package.util_df_prep import handle_main_dir
 
 main_dir = "/Users/aljoscha/Downloads/2012_nompC_Crimson_WT_4min_50p_TRex_beta_2101"
 condition = ["group", "single"]

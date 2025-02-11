@@ -3,10 +3,10 @@ import cv2
 import numpy as np
 import pandas as pd
 
-from package.util_df_generation import handle_main_dir
-from package.util_df_generation import create_mapping_actual_groups
-from package.util_df_generation import create_mapping_artificial_groups_bootstrapped
-from package.util_df_generation import create_mapping_semi_artificial_groups_bootstrapped
+from package.util_df_prep import handle_main_dir
+from package.util_df_prep import create_mapping_actual_groups
+from package.util_df_prep import create_mapping_artificial_groups_bootstrapped
+from package.util_df_prep import create_mapping_semi_artificial_groups_bootstrapped
 
 from package import config_settings
 
@@ -45,6 +45,7 @@ for i in range(len(condition_dir) - 1):
         # Process images in the subdirectory
         shift = [0, 0]
         x_mid, y_mid, radius = None, None, None  # Initialize circle values
+        conversion_factor = None
         for png_file in os.listdir(sub_dir_path):
             if png_file.endswith('.png'):
                 image_path = os.path.join(sub_dir_path, png_file)
