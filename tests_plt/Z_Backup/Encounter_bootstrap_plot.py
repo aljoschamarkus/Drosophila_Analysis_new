@@ -5,7 +5,7 @@ import seaborn as sns
 from itertools import combinations
 from scipy.spatial.distance import euclidean
 import random
-from data_processing_utils import process_csv  # Your utility to process CSV files
+import numpy as np
 
 # Paths and settings
 main_directory_group = '/Users/aljoscha/Downloads/2012_nompC_Crimson_WT_4min_50p_TRex_beta_2101/group'
@@ -18,6 +18,27 @@ STRING = ["nompCxCrimson", "WTxCrimson", "nompCxWT"]
 colors = ['#e41a1c', '#377eb8', '#4daf4a']
 distance_threshold = 47  # Distance threshold for encounters
 frame_limit = 7190  # Number of frames to analyze
+
+def process_csv(file_path):
+    """Load and clean CSV for X, Y centroids, and SPEED."""
+    data = pd.read_csv(file_path)
+
+    # Limit to the first 5400 rows
+    data = data.iloc[:5400]
+
+    # Convert columns to numeric, dropping invalid entries
+    X_centroid = pd.to_numeric(data['X#wcentroid (cm)'], errors='coerce')
+    Y_centroid = pd.to_numeric(data['Y#wcentroid (cm)'], errors='coerce')
+
+    # Drop NaN and Inf values explicitly
+    X_centroid = X_centroid[~X_centroid.isin([np.inf, -np.inf])]
+    Y_centroid = Y_centroid[~Y_centroid.isin([np.inf, -np.inf])]
+
+    # Return cleaned centroids
+    return (
+        X_centroid.dropna().values,
+        Y_centroid.dropna().values
+    )
 
 def create_bootstrapped_groups(base_directory, group_size=5):
     """Creates artificial groups by cycling through directories and randomly selecting others to form groups."""
