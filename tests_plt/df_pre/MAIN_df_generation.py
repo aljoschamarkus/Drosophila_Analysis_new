@@ -6,6 +6,7 @@ import pandas as pd
 from package.util_df_generation import handle_main_dir
 from package.util_df_generation import create_mapping_actual_groups
 from package.util_df_generation import create_mapping_artificial_groups_bootstrapped
+from package.util_df_generation import create_mapping_semi_artificial_groups_bootstrapped
 
 from package import config_settings
 
@@ -25,6 +26,7 @@ data_frame = []
 
 # Get the directory structure
 condition_dir = handle_main_dir(main_dir, condition)
+print(condition_dir)
 
 # Process each condition directory
 for i in range(len(condition_dir) - 1):
@@ -127,4 +129,12 @@ mapping_artificial_groups_bootstrapped = create_mapping_artificial_groups_bootst
 )
 mapping_artificial_groups_bootstrapped.to_pickle(os.path.join(condition_dir[2], "mapping_artificial_groups_bootstrapped.pkl"))
 
-print(mapping_actual_groups['group_id'].unique())
+mapping_semi_artificial_groups_bootstrapped = create_mapping_semi_artificial_groups_bootstrapped(
+    df=df_initial,
+    group_size=group_size,
+    bootstrap_reps=bootstrap_reps,  # Apply bootstrapping twice
+    condition=condition_dir[0][1]  # Replace with your condition values
+)
+mapping_semi_artificial_groups_bootstrapped.to_pickle(os.path.join(condition_dir[2], "mapping_semi_artificial_groups_bootstrapped.pkl"))
+
+print(mapping_semi_artificial_groups_bootstrapped['group_id'].unique())
