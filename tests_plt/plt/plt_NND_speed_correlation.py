@@ -46,7 +46,7 @@ df_new['speed_rolling'] = df_new.groupby(level='individual_id')['speed'].rolling
 # df_new['speed_rolling'] = df_new.groupby(level='individual_id')['midline_offset']
 
 # Filter: Exclude speeds > 15 and NND outside [0,2]
-df_filtered = df_new[(df_new['speed_rolling'] <= 30) & (df_new['NND'].between(0, 8))].dropna()
+df_filtered = df_new[(df_new['speed_rolling'] <= 500) & (df_new['NND'].between(0, 8))].dropna()
 
 # Calculate Pearson Correlation
 corr_coeff, p_value = pearsonr(df_filtered['NND'], df_filtered['speed_rolling'])

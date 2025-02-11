@@ -106,7 +106,6 @@ def process_groups_over_speed(selected_lines=None):
     plt.tight_layout()
     plt.show()
 
-
 # Example usage
 process_groups_over_speed(selected_lines=[
     ("WTxCrimson", "actual"),

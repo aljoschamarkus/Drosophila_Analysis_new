@@ -42,14 +42,14 @@ trajectories = {}
 previous_trajectories = {}
 
 # Buffer to store the previous 60 frames for each individual
-history = {individual: ([], []) for individual in df_filtered.index.get_level_values('individual_id').unique()}
+history = {individual: ([], [], []) for individual in df_filtered.index.get_level_values('individual_id').unique()}
 
 # Initialize the plot limits for the animation
 def init():
     # Initialize empty data for each individual trajectory
     for individual_id in df_filtered.index.get_level_values('individual_id').unique():
         trajectories[individual_id], = ax.plot([], [], 'ro', markersize=4)  # Current trajectory (individual)
-        previous_trajectories[individual_id], = ax.plot([], [], 'go', markersize=1)  # Previous trajectory
+        previous_trajectories[individual_id], = ax.plot([], [], 'go', markersize=1, alpha=0.5)  # Initial transparency
     return [line for line in trajectories.values()] + [line for line in previous_trajectories.values()]
 
 # Function to update the plot in each frame of the animation

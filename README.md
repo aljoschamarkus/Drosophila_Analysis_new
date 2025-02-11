@@ -35,3 +35,6 @@ Also:
 - Signless midline offset
 - Speed rolling avg into dataframe
 - Manual speed calculation into dataframe
+
+Project info:
+
