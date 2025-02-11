@@ -9,6 +9,15 @@
 # results_plt_specific_dir = os.path.join(condition_dir[2][1], 'specific')
 #     os.makedirs(results_plt_specific_dir, exist_ok=True)
 
+# map_RGN = create_mapping_actual_groups(
+#     df_initial=df_initial,
+#     condition=condition_dir[0][1]
+# )
+# map_RGN.to_pickle(os.path.join(condition_dir[2][0], "map_RGN.pkl"))
+
+
+
+
 
 
 

@@ -115,27 +115,39 @@ df_initial = df_initial.rename(columns={
 })
 df_initial.to_pickle(os.path.join(condition_dir[2][0], "data_frame_initial.pkl"))
 
-mapping_actual_groups = create_mapping_actual_groups(
-    df_initial=df_initial,
-    condition=condition_dir[0][1]
-)
-mapping_actual_groups.to_pickle(os.path.join(condition_dir[2][0], "mapping_actual_groups.pkl"))
+# Define a dictionary mapping names to functions
+mapping_functions = {
+    "map_RGN": create_mapping_actual_groups,
+    "map_AIB": create_mapping_artificial_groups_bootstrapped,
+    "map_AGB": create_mapping_semi_artificial_groups_bootstrapped,
+}
 
-# Example usage of create_artificial_groups_bootstrapped
-mapping_artificial_groups_bootstrapped = create_mapping_artificial_groups_bootstrapped(
-    df=df_initial,
-    group_size=group_size,
-    bootstrap_reps=bootstrap_reps,  # Apply bootstrapping twice
-    condition=condition_dir[1][1]  # Replace with your condition values
-)
-mapping_artificial_groups_bootstrapped.to_pickle(os.path.join(condition_dir[2][0], "mapping_artificial_groups_bootstrapped.pkl"))
+# Define the corresponding conditions for each function
+mapping_conditions = {
+    "map_RGN": condition_dir[0][1],
+    "map_AIB": condition_dir[1][1],
+    "map_AGB": condition_dir[0][1],
+}
 
-mapping_semi_artificial_groups_bootstrapped = create_mapping_semi_artificial_groups_bootstrapped(
-    df=df_initial,
-    group_size=group_size,
-    bootstrap_reps=bootstrap_reps,  # Apply bootstrapping twice
-    condition=condition_dir[0][1]  # Replace with your condition values
-)
-mapping_semi_artificial_groups_bootstrapped.to_pickle(os.path.join(condition_dir[2][0], "mapping_semi_artificial_groups_bootstrapped.pkl"))
+# Define output directory
+output_dir = condition_dir[2][0]
 
-print(mapping_semi_artificial_groups_bootstrapped['group_id'].unique())
+# Loop through the mapping functions
+for name, func in mapping_functions.items():
+    # Determine function arguments dynamically
+    kwargs = {
+        "df": df_initial,
+        "condition": mapping_conditions[name],
+    }
+
+    # Add optional arguments if they exist for the function
+    if "group_size" in func.__code__.co_varnames:
+        kwargs["group_size"] = group_size
+    if "bootstrap_reps" in func.__code__.co_varnames:
+        kwargs["bootstrap_reps"] = bootstrap_reps
+
+    # Call function dynamically
+    mapping = func(**kwargs)
+
+    # Save the output to a pickle file
+    mapping.to_pickle(os.path.join(output_dir, f"{name}.pkl"))

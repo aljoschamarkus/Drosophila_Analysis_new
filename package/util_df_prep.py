@@ -39,7 +39,7 @@ def handle_main_dir(main_directory, condition):
     return group_dir, single_dir, results_dir
 
 
-def create_mapping_actual_groups(df_initial, condition):
+def create_mapping_actual_groups(df, condition):
     """
     Creates actual groups by assigning each 'sub_dir' a unique 'group_id'
     based on its genotype without bootstrapping.
@@ -53,7 +53,7 @@ def create_mapping_actual_groups(df_initial, condition):
     """
     import pandas as pd
     # Filter for the specified condition
-    df_filtered = df_initial[df_initial.index.get_level_values('condition') == condition]
+    df_filtered = df[df.index.get_level_values('condition') == condition]
 
     # Store mappings
     mapping_data = []
