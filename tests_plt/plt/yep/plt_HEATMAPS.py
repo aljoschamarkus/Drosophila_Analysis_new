@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from matplotlib.colors import LogNorm
-from package.util_df_prep import handle_main_dir
+from package.util_data_preperation import handle_main_dir
 
 main_dir = "/Users/aljoscha/Downloads/2012_nompC_Crimson_WT_4min_50p_TRex_beta_2101"
 condition = ["group", "single"]
@@ -41,25 +41,25 @@ for cond in condition:
         max_frame = frame_plt.max()
         frame_bins = np.arange(min_frame, max_frame + frame_bin_size, frame_bin_size)
 
-        # Create a subplot for each frame bin
+        # Create a subplot for each frame analysis_unrelated
         num_bins = len(frame_bins) - 1
         fig, axes = plt.subplots(1, num_bins, figsize=(15, 7), sharey=True)
 
-        if num_bins == 1:  # Handle case where only one frame bin exists
+        if num_bins == 1:  # Handle case where only one frame analysis_unrelated exists
             axes = [axes]
 
-        # Loop through each frame bin
+        # Loop through each frame analysis_unrelated
         for i in range(num_bins):
             bin_start, bin_end = frame_bins[i], frame_bins[i + 1]
 
-            # Filter data for the current frame bin
+            # Filter data for the current frame analysis_unrelated
             df_bin = subset[(frame_plt >= bin_start) & (frame_plt < bin_end)]
 
             # Define grid for 1x1 cm bins (you can adjust based on the scale of your data)
             x_min, x_max = x_plt.min(), x_plt.max()
             y_min, y_max = y_plt.min(), y_plt.max()
 
-            # Create a 2D histogram of point density (counts in each 1x1 cm bin)
+            # Create a 2D histogram of point density (counts in each 1x1 cm analysis_unrelated)
             x_bin = df_bin['x'].values
             y_bin = df_bin['y'].values
             hist, xedges, yedges = np.histogram2d(

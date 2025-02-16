@@ -16,7 +16,6 @@ df_new = df.xs((id, 'WTxCrimson', 'group'), level=['sub_dir', 'genotype', 'condi
 if not {'x', 'y', 'speed'}.issubset(df_new.columns):
     raise ValueError("Missing required columns in DataFrame")
 
-
 # Compute Nearest Neighbor Distance (NND)
 def compute_nnd(df):
     """Computes the nearest neighbor distance for each individual at each frame."""
