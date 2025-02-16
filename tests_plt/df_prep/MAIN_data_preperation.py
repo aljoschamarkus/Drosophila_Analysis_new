@@ -3,10 +3,11 @@ import cv2
 import numpy as np
 import pandas as pd
 
-from package.util_df_prep import handle_main_dir
-from package.util_df_prep import create_mapping_actual_groups
-from package.util_df_prep import create_mapping_artificial_groups_bootstrapped
-from package.util_df_prep import create_mapping_semi_artificial_groups_bootstrapped
+from package.util_data_preperation import handle_main_dir
+from package.util_data_preperation import create_mapping_actual_groups
+from package.util_data_preperation import create_mapping_artificial_groups_bootstrapped
+from package.util_data_preperation import create_mapping_semi_artificial_groups_bootstrapped
+from package.util_data_preperation import compute_pairwise_distances_and_encounters
 
 from package import config_settings
 
@@ -18,6 +19,7 @@ quality = config_settings.quality
 dish_radius = config_settings.dish_radius
 group_size = config_settings.group_size
 bootstrap_reps = config_settings.bootstrap_reps
+distance_threshold_encounter = config_settings.distance_threshold_encounter
 
 counter = 0
 
@@ -26,7 +28,6 @@ data_frame = []
 
 # Get the directory structure
 condition_dir = handle_main_dir(main_dir, condition)
-print(condition_dir)
 
 # Process each condition directory
 for i in range(len(condition_dir) - 1):
@@ -92,10 +93,11 @@ for i in range(len(condition_dir) - 1):
                     csv_data['SPEED#wcentroid (cm/s)'] *= conversion_factor * 30
 
                     # Add metadata to the DataFrame
+                    csv_data['midline_offset_signless'] = np.abs(csv_data['MIDLINE_OFFSET'])
                     csv_data['sub_dir'] = sub_dir
                     csv_data['condition'] = condition_dir[i][1]
                     csv_data['genotype'] = geno
-                    csv_data['individual_id'] = f'individual_{counter}'
+                    csv_data['individual_id'] = f'I_ID_{counter}'
 
 
                     # Append the data to the main list
@@ -113,7 +115,11 @@ df_initial = df_initial.rename(columns={
     'X#wcentroid (cm)': 'x',
     'Y#wcentroid (cm)': 'y'
 })
-df_initial.to_pickle(os.path.join(condition_dir[2][0], "data_frame_initial.pkl"))
+df_initial.to_pickle(os.path.join(condition_dir[2][0], "df_initial.pkl"))
+
+print("Index names:", df_initial.index.names)
+print("Columns:", df_initial.columns.tolist())
+print("Data frame shape:", df_initial.shape)
 
 # Define a dictionary mapping names to functions
 mapping_functions = {
@@ -129,9 +135,7 @@ mapping_conditions = {
     "map_AGB": condition_dir[0][1],
 }
 
-# Define output directory
-output_dir = condition_dir[2][0]
-
+mapping_list = []
 # Loop through the mapping functions
 for name, func in mapping_functions.items():
     # Determine function arguments dynamically
@@ -148,6 +152,32 @@ for name, func in mapping_functions.items():
 
     # Call function dynamically
     mapping = func(**kwargs)
+    mapping_list.append(mapping)
 
-    # Save the output to a pickle file
-    mapping.to_pickle(os.path.join(output_dir, f"{name}.pkl"))
+# Now you can access the data as:
+map_RGN = mapping_list[0]
+map_AIB = mapping_list[1]
+map_AGB = mapping_list[2]
+
+map_RGN['group_type'] = 'RGN'
+map_AIB['group_type'] = 'AIB'
+map_AGB['group_type'] = 'AGB'
+
+map_combined = pd.concat([map_RGN, map_AIB, map_AGB])
+
+df_merged = df_initial.reset_index().merge(map_combined, on='individual_id', how='inner')
+
+df_groups = df_merged.set_index(['sub_dir', 'condition', 'genotype', 'group_type', 'group_id', 'individual_id', 'frame'])
+
+df_groups.to_pickle(os.path.join(condition_dir[2][0], "df_groups.pkl"))
+
+print("Index names:", df_groups.index.names)
+print("Columns:", df_groups.columns.tolist())
+print("Data frame shape:", df_groups.shape)
+
+df_group_parameters = compute_pairwise_distances_and_encounters(df_groups, distance_threshold_encounter)
+df_group_parameters.to_pickle(os.path.join(condition_dir[2][0], "df_group_parameters.pkl"))
+
+print("Index names:", df_group_parameters.index.names)
+print("Columns:", df_group_parameters.columns.tolist())
+print("Data frame shape:", df_group_parameters.shape)
