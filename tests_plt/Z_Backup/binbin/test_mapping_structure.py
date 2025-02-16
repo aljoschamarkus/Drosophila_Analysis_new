@@ -3,7 +3,7 @@ import os
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 from concurrent.futures import ProcessPoolExecutor
-from package.util_df_prep import handle_main_dir
+from package.util_data_preperation import handle_main_dir
 from package import config_settings
 from tqdm import tqdm
 

@@ -3,8 +3,8 @@ import numpy as np
 import os
 from scipy.spatial.distance import cdist
 from tqdm import tqdm
-from concurrent.futures import ProcessPoolExecutor
-from package.util_df_prep import handle_main_dir
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from package.util_data_preperation import handle_main_dir
 from package import config_settings
 
 # Parameters
@@ -12,7 +12,7 @@ DISTANCE_THRESHOLD = 0.5  # Distance threshold for encounters
 MAX_DURATION_THRESHOLD = 1200  # Max encounter duration filter
 
 
-def process_group(group):
+def process_group(group_data):
     """
     Computes:
     - Mean pairwise distances
@@ -20,6 +20,8 @@ def process_group(group):
     - Nearest Neighbor Distance (NND)
     for a single (group_id, frame) group.
     """
+    _, group = group_data  # Unpack tuple
+
     if len(group) < 2:
         group['pairwise_distance'] = np.nan
         group['nearest_neighbor_distance'] = np.nan
@@ -57,15 +59,18 @@ def compute_pairwise_distances_and_encounters(df):
     # Reset index for easier calculations
     df = df.reset_index()
 
-    # Group by 'group_id' and 'frame'
-    grouped = list(df.groupby(['group_id', 'frame'], sort=False))  # Convert to list for tqdm
+    # Convert groups to list for parallel processing
+    grouped = list(df.groupby(['group_id', 'frame'], sort=False))
     total_groups = len(grouped)
 
     results = []
+
     with ProcessPoolExecutor(max_workers=os.cpu_count() - 1) as executor:
-        for result in tqdm(executor.map(lambda g: process_group(g[1]), grouped),
-                           total=total_groups, desc="Processing groups"):
-            results.append(result)
+        future_to_group = {executor.submit(process_group, g): g for g in grouped}
+
+        # tqdm progress bar for tracking progress
+        for future in tqdm(as_completed(future_to_group), total=total_groups, desc="Processing groups"):
+            results.append(future.result())
 
     # Concatenate results
     df = pd.concat(results)
