@@ -1,9 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
 from matplotlib.colors import LogNorm
-from package.util_data_preperation import handle_main_dir
 
 main_dir = "/Users/aljoscha/Downloads/2012_nompC_Crimson_WT_4min_50p_TRex_beta_2101"
 condition = ["group", "single"]
@@ -17,9 +15,6 @@ data_len = 7191
 stimulation_used = "625nm 1µW/mm^2"
 colors = [['#e41a1c', '#377eb8', '#4daf4a'], ['#fbb4ae', '#a6cee3', '#b2df8a']]
 line_styles = ["-", "--"]
-
-condition_dir = handle_main_dir(main_dir, condition)
-print(condition_dir)
 
 df = pd.read_pickle('/Users/aljoscha/Downloads/2012_nompC_Crimson_WT_4min_50p_TRex_beta_2101/results/data/data_frame_initial.pkl')
 

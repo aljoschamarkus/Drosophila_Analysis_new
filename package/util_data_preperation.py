@@ -1,40 +1,39 @@
 def handle_main_dir(main_directory, condition):
     """
-    Creates a list of lists containing the directories and the condition for the conditions data,
-    as well as a result directory in the main directory.
+    Creates a list containing the directories for the data of the conditions,
+    as well as result directories.
 
     Args:
         main_directory (str): The main directory containing the conditions subdirectories.
         condition (list): A list containing the conditions.
 
     Returns:
-        data structure (list of lists): [[condition0_dir, condition0], [condition1_dir, condition1], results_dir]
+        data structure (list): [condition0_dir, condition1_dir, results_data_dir, results_plt_dir]
     """
 
     import os
-    group_dir, single_dir = None, None  # Initialize variables with default values
+    group_dir, single_dir = None, None
 
-    results_main_dir = os.path.join(main_directory, 'results')
-    os.makedirs(results_main_dir, exist_ok=True)
-    results_data_dir = os.path.join(results_main_dir, 'data')
-    os.makedirs(results_data_dir, exist_ok=True)
-    results_plt_dir = os.path.join(results_main_dir, 'plt')
-    os.makedirs(results_plt_dir, exist_ok=True)
-    results_dir = [results_data_dir, results_plt_dir]
-    # Ensure condition2 has at least two elements
+    # Ensure condition has at least two elements
     if not isinstance(condition, (list, tuple)) or len(condition) < 2:
-        raise ValueError("condition2 must be a list or tuple with at least two elements.")
+        raise ValueError("condition must be a list or tuple with at least two elements.")
 
     for folder in os.listdir(main_directory):
         folder_lower = folder.lower()  # Avoid recalculating `folder.lower()`
         if any(part in folder_lower for part in condition):
             if condition[0] in folder_lower:
-                group_dir = [os.path.join(main_directory, folder), condition[0]]
+                group_dir = os.path.join(main_directory, folder)
             elif condition[1] in folder_lower:
-                single_dir = [os.path.join(main_directory, folder), condition[1]]
+                single_dir = os.path.join(main_directory, folder)
 
-    # Return the directories (or None if not found)
-    return group_dir, single_dir, results_dir
+    results_main_dir = '/Users/aljoscha/Downloads/results'
+    os.makedirs(results_main_dir, exist_ok=True)
+    results_data_dir = os.path.join(results_main_dir, 'data')
+    os.makedirs(results_data_dir, exist_ok=True)
+    results_plt_dir = os.path.join(results_main_dir, 'plt')
+    os.makedirs(results_plt_dir, exist_ok=True)
+
+    return group_dir, single_dir, results_data_dir, results_plt_dir
 
 
 import pandas as pd

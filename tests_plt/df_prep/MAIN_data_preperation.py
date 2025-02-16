@@ -27,11 +27,12 @@ counter = 0
 data_frame = []
 
 # Get the directory structure
-condition_dir = handle_main_dir(main_dir, condition)
+group_dir, single_dir, results_data_dir, results_plt_dir = handle_main_dir(main_dir, condition)
+condition_dir = [group_dir, single_dir]
 
 # Process each condition directory
-for i in range(len(condition_dir) - 1):
-    for sub_dir in os.listdir(condition_dir[i][0]):
+for i in range(len(condition)):
+    for sub_dir in os.listdir(condition_dir[i]):
 
         # Identify the genotype from the folder name
         geno = next((g for g in genotype if g in sub_dir), None)
@@ -39,7 +40,7 @@ for i in range(len(condition_dir) - 1):
             print(f"Skipping: {sub_dir}")
             continue  # Skip directories without a matching genotype
 
-        sub_dir_path = os.path.join(condition_dir[i][0], sub_dir)
+        sub_dir_path = os.path.join(condition_dir[i], sub_dir)
         if not os.path.isdir(sub_dir_path):
             continue
 
@@ -95,7 +96,7 @@ for i in range(len(condition_dir) - 1):
                     # Add metadata to the DataFrame
                     csv_data['midline_offset_signless'] = np.abs(csv_data['MIDLINE_OFFSET'])
                     csv_data['sub_dir'] = sub_dir
-                    csv_data['condition'] = condition_dir[i][1]
+                    csv_data['condition'] = condition[i]
                     csv_data['genotype'] = geno
                     csv_data['individual_id'] = f'I_ID_{counter}'
 
@@ -115,7 +116,7 @@ df_initial = df_initial.rename(columns={
     'X#wcentroid (cm)': 'x',
     'Y#wcentroid (cm)': 'y'
 })
-df_initial.to_pickle(os.path.join(condition_dir[2][0], "df_initial.pkl"))
+df_initial.to_pickle(os.path.join(results_data_dir, "df_initial.pkl"))
 
 print("Index names:", df_initial.index.names)
 print("Columns:", df_initial.columns.tolist())
@@ -130,9 +131,9 @@ mapping_functions = {
 
 # Define the corresponding conditions for each function
 mapping_conditions = {
-    "map_RGN": condition_dir[0][1],
-    "map_AIB": condition_dir[1][1],
-    "map_AGB": condition_dir[0][1],
+    "map_RGN": condition[0],
+    "map_AIB": condition[1],
+    "map_AGB": condition[0],
 }
 
 mapping_list = []
@@ -169,14 +170,14 @@ df_merged = df_initial.reset_index().merge(map_combined, on='individual_id', how
 
 df_groups = df_merged.set_index(['sub_dir', 'condition', 'genotype', 'group_type', 'group_id', 'individual_id', 'frame'])
 
-df_groups.to_pickle(os.path.join(condition_dir[2][0], "df_groups.pkl"))
+df_groups.to_pickle(os.path.join(results_data_dir, "df_groups.pkl"))
 
 print("Index names:", df_groups.index.names)
 print("Columns:", df_groups.columns.tolist())
 print("Data frame shape:", df_groups.shape)
 
 df_group_parameters = compute_pairwise_distances_and_encounters(df_groups, distance_threshold_encounter)
-df_group_parameters.to_pickle(os.path.join(condition_dir[2][0], "df_group_parameters.pkl"))
+df_group_parameters.to_pickle(os.path.join(results_data_dir, "df_group_parameters.pkl"))
 
 print("Index names:", df_group_parameters.index.names)
 print("Columns:", df_group_parameters.columns.tolist())
