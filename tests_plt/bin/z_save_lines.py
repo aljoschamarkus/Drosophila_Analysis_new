@@ -6,6 +6,10 @@
 # print("Index names:", df_final.index.names)
 # print("Columns:", df_final.columns.tolist())
 
+# print(df['encounter_count'].unique())
+# print(df['encounter_count'].value_counts(0)[0])
+# print(df['encounter_count'].value_counts(1))
+
 # results_plt_specific_dir = os.path.join(condition_dir[2][1], 'specific')
 #     os.makedirs(results_plt_specific_dir, exist_ok=True)
 
@@ -15,11 +19,59 @@
 # )
 # map_RGN.to_pickle(os.path.join(condition_dir[2][0], "map_RGN.pkl"))
 
+# for idx in data_files:
+#     df = data_dict[idx]
+#     print(f"--- {idx} ---")
+#     print("Index names:", df.index.names)
+#     print("Columns:", df.columns.tolist())
+#     print("Shape:", df.shape)
+# # print(data_dict['map_AGB']['group_id'].unique())
+
+"""Encounter Extraction"""
+# # Compute encounter frequency per individual
+# df_final3['encounter_frequency'] = df_final3['encounter_count'] > 0
+#
+# # Identify encounter durations (frames with encounters grouped together)
+# df_final3['encounter_event'] = df_final3['encounter_count'] > 0
+# df_final3['encounter_duration'] = df_final3.groupby(['group_id', 'individual_id'])['encounter_event'].apply(lambda x: x.astype(int).groupby((x == 0).cumsum()).cumsum())
+#
+# # Filter durations over threshold
+# df_final3['encounter_duration'] = df_final3['encounter_duration'].where(df_final3['encounter_duration'] <= MAX_DURATION_THRESHOLD, np.nan)
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+# # Loop through file names and load them into the dictionary
+# for name in data_files:
+#     file_path = os.path.join(condition_dir[2][0], f"{name}.pkl")
+#     data_dict[name] = pd.read_pickle(file_path)
+
+# # Now you can access the data as:
+# data_frame_initial = data_dict['data_frame_initial']
+# map_RGN = data_dict['map_RGN']
+# map_AIB = data_dict['map_AIB']
+# map_AGB = data_dict['map_AGB']
+
+# data_files = ['data_frame_initial', 'map_RGN', 'map_AIB', 'map_AGB']
+
+data_dict = {}
+
+# for i in range(len(mapping_list)):
+#     data_dict[data_files[i]] = mapping_list[i]
+# print(data_dict)
+# mapping.to_pickle(os.path.join(condition_dir[2][0], f"{name}.pkl"))
 
 
 
