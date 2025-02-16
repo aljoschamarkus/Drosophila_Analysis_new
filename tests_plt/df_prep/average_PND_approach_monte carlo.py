@@ -5,7 +5,6 @@ from scipy.spatial import distance_matrix
 radius = 6.5  # cm
 num_points = 5
 num_trials = 1000000  # Monte Carlo simulations
-prev1 = 3.1546100253789686
 
 # Function to generate random points inside a circle
 def generate_random_points_in_circle(radius, num_points):
