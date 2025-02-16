@@ -18,6 +18,7 @@ condition = ["group", "single"]
 # Experiments
 dish_radius = 6.5 # cm
 bootstrap_reps = 2
+stimulation_intensity = 50 # percent max stimulation
 main_dir = "/Users/aljoscha/Downloads/2012_nompC_Crimson_WT_4min_50p_TRex_beta_2101" # Main directory with ./group and ./single subdirectories
 genotype = ["nompCxCrimson", "WTxCrimson", "nompCxWT"]
 
@@ -49,13 +50,4 @@ color_mapping = {
 
 unit_xy = "cm"
 unit_speed = "cm/s"
-
-
-
-
-
-
-
-
-stimulation_used = f"{stimulation[2]}{stimulation[3]}, {stimulation_intensity[0] * stimulation[0] * 0.01}{stimulation[1]}" # ...nm, ...µW/mm^2
-
+stimulation_used = f"{stimulation[2]}{stimulation[3]}, {stimulation_intensity * stimulation[0] * 0.01}{stimulation[1]}" # ...nm, ...µW/mm^2
