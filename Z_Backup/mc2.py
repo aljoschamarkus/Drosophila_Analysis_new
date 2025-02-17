@@ -4,7 +4,7 @@ from scipy.spatial import distance_matrix
 # Define parameters
 radius = 6.5  # cm
 num_points = 5
-num_trials = 1000000  # Monte Carlo simulations
+num_trials = 100000  # Monte Carlo simulations
 
 # Function to generate random points inside a circle
 def generate_random_points_in_circle(radius, num_points):
@@ -15,14 +15,14 @@ def generate_random_points_in_circle(radius, num_points):
     return np.column_stack((x, y))
 
 # Monte Carlo simulation
-avg_distances = []
+avg_pairwise_distances = []
 for _ in range(num_trials):
     points = generate_random_points_in_circle(radius, num_points)
     dist_matrix = distance_matrix(points, points)  # Compute pairwise distances
-    np.fill_diagonal(dist_matrix, np.inf)  # Ignore self-distances
-    avg_neighbor_dist = np.mean(np.min(dist_matrix, axis=1))  # Average nearest-neighbor distance
-    avg_distances.append(avg_neighbor_dist)
+    np.fill_diagonal(dist_matrix, np.nan)  # Ignore self-distances by setting them to NaN
+    avg_pairwise_dist = np.nanmean(dist_matrix)  # Average of all pairwise distances
+    avg_pairwise_distances.append(avg_pairwise_dist)
 
-# Compute final average neighbor distance
-average_neighbor_distance = np.mean(avg_distances)
-print(f"Average nearest-neighbor distance: {average_neighbor_distance} cm")
+# Compute final average pairwise distance
+average_pairwise_distance = np.mean(avg_pairwise_distances)
+print(f"Average pairwise distance: {average_pairwise_distance} cm")

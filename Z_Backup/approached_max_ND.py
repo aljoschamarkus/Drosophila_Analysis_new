@@ -7,13 +7,14 @@ df2 = df.xs('AIB', level='group_type')
 df3 = df.xs(('RGN', 'nompCxCrimson'), level=['group_type', 'genotype'])
 df4 = df.xs(('RGN', 'WTxCrimson'), level=['group_type', 'genotype'])
 
-df5 = [df1, df2, df3, df4]
+df5 = [df, df1, df2, df3, df4]
 PND = []
 for df in df5:
 
     max_frame = df.index.get_level_values('frame').max()
     df_last_1800 = df.xs(slice(max_frame - 1799, max_frame), level='frame', drop_level=False)
     df_plt = df_last_1800.groupby(['frame']).mean()
+    average_pairwise_distance = df_plt['pairwise_distance'].mean()
 
     from scipy.stats import shapiro
 
@@ -25,7 +26,6 @@ for df in df5:
     # stat, p = shapiro(df_f)
 
 
-    average_pairwise_distance = df_plt['pairwise_distance'].mean()
     # df_f = df_last_1800['pairwise_distance'].dropna()
     # df_f = df_f[np.isfinite(df_f)]
     stat, p = shapiro(df_plt['pairwise_distance'])
@@ -41,7 +41,7 @@ for df in df5:
 
 from scipy.stats import mannwhitneyu
 
-u_stat, p_value = mannwhitneyu(PND[0], PND[1])
+u_stat, p_value = mannwhitneyu(PND[3], PND[4])
 
 print(f"U-statistic: {u_stat}, P-value: {p_value}")
 

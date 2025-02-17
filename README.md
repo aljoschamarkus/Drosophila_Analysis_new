@@ -1,4 +1,4 @@
-# Drosophlila experimental data analysis
+# Drosophila Experimental Data Analysis
 
 ## Overview
 > Project to analyse and visualise video data of Drosophila melanogaster behavioural experiments. Extracting Basic movement Parameters such as speed and midline offset, as well as Group features such as neighbour distances and encounter Analysis.
@@ -8,7 +8,7 @@
 
 ## Project structure
 
-### package (dierctory)
+### package (directory)
 collection of modules relevant for the project
 - `config_parameters` contains relevant parameters: video metadata, Arena size, genotypes, plotting choices, etc.
 - `util_data_processing` contains functions to process the raw data and extract the relevant features.
@@ -58,7 +58,7 @@ The data should be stored in a directory structure as follows:\
 ```
 The csv-files contain the following (relevant) columns:
 - `frame` the frame number
-- `MIDLINE_OFFSETT` the midline offset of the larva
+- `MIDLINE_OFFSET` the midline offset of the larva
 - `SPEED#wcentroid (cm/s)` the speed of the larva which is not actually in cm/s but in pixels per frame
 - `X#wcentroid (cm)` the x-coordinate of the larva
 - `Y#wcentroid (cm)` the y-coordinate of the larva
