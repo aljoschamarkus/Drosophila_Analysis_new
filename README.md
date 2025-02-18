@@ -119,6 +119,4 @@ python main.py --input experiment_data.csv
 
 ## Notes
 - If you encounter an error, check the input data format.
-- The script requires Python 3.x and the Pandas/Matplotlib libraries.
-- Contact [Your Name] for questions or improvements.
 -->
