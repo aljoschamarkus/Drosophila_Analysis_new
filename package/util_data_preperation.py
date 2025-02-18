@@ -292,8 +292,8 @@ def compute_pairwise_distances_and_encounters(df, distance_treshold_encounter):
         encounter_counts[indices] = (encounter_matrix.sum(axis=1) > 1).astype(int)
 
     # Assign results
-    df['pairwise_distance'] = mean_distances
-    df['nearest_neighbor_distance'] = nearest_neighbor_distances
+    df['PND'] = mean_distances
+    df['NND'] = nearest_neighbor_distances
     df['encounter_count'] = encounter_counts  # Number of encounters per individual
 
     # Restore original multi-index

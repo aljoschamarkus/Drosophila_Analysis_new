@@ -1,31 +1,29 @@
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm
+def main_plot(select_function, *inputs):
+    """Dynamically select and call a plot function."""
+    if select_function in plot_functions:
+        func = plot_functions[select_function]
 
-main_dir = "/Users/aljoscha/Downloads/2012_nompC_Crimson_WT_4min_50p_TRex_beta_2101"
-condition = ["group", "single"]
-genotype = ["nompCxCrimson", "WTxCrimson", "nompCxWT"]
-quality = [1296, 972]
-dish_radius = 6.5
+        # Check function arguments
+        required_args = func.__code__.co_varnames[:func.__code__.co_argcount]
 
-FPS = 30
-group_size = 5
-data_len = 7191
-stimulation_used = "625nm 1µW/mm^2"
-colors = [['#e41a1c', '#377eb8', '#4daf4a'], ['#fbb4ae', '#a6cee3', '#b2df8a']]
-line_styles = ["-", "--"]
+        if len(inputs) >= len(required_args):  # Ensure correct number of inputs
+            func(*inputs)  # Call the function dynamically
+        else:
+            print(f"Error: {select_function} requires {len(required_args)} inputs.")
+    else:
+        print(f"Error: Function '{select_function}' not found.")
 
-df = pd.read_pickle('/Users/aljoscha/Downloads/2012_nompC_Crimson_WT_4min_50p_TRex_beta_2101/results/data/data_frame_initial.pkl')
 
-print("Index names:", df.index.names)
-print("Columns:", df.columns.tolist())
 
-frame_bin_size = (data_len + 1) / 2
-grid_size = 0.2
 
-for cond in condition:
-    for geno in genotype:
+def plt_heatmaps(df, data_len, selected): # , result_dir):
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import LogNorm
+    frame_bin_size = (data_len + 1) / 2
+    grid_size = 0.2
+
+    for cond, geno in selected.items():
         x_plt = df.xs((cond, geno),
                       level=['condition', 'genotype'])['x'].dropna().values
         y_plt = df.xs((cond, geno),
@@ -92,8 +90,34 @@ for cond in condition:
         # Add overall title
         fig.suptitle(f"Heatmaps of Trajectories for Condition: {cond} {geno}", fontsize=16)
 
-        # Adjust layout to prevent overlap while keeping the colorbar in place
         plt.subplots_adjust(right=0.85, top=0.85)
-
-        # Show the plot
+        # plt.savefig(os.path.join(result_dir, f"{cond}_{geno}.png"))
+        # plt.close()
         plt.show()
+
+
+
+plot_functions = {
+    "heatmaps": plt_heatmaps,
+}
+
+
+# def plot(x, y, midpoint, radius):
+#     plt.figure(figsize=(8, 6))
+#     plt.scatter(x, y, alpha=0.5, label="Data")
+#     plt.xlabel('Nearest Neighbor Distance (NND)')
+#     plt.ylabel('Rolling-Averaged Speed')
+#     plt.title('Speed vs. Nearest Neighbor Distance')
+#     plt.xlim(0, 1)
+#     plt.ylim(0, 1)
+#     plt.gca().set_aspect('equal', adjustable ='box')
+#     plt.tight_layout()
+#     plt.legend()
+#     plt.grid(True)
+#     plt.show()
+#     circle = plt.Circle(midpoint, radius, color='red', fill=False, linewidth=2)
+#     plt.gca().add_patch(circle)
+#     # plt.savefig(os.path.join(condition_dir[2], f"{cond}_{geno}.png"))
+#     # plt.close()
+#     # cbar = fig.colorbar(cax, ax=axes, orientation='vertical', label='Density (log scale)', fraction=0.02, pad=0.04)
+#     return None
