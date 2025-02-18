@@ -14,8 +14,6 @@ def main_plot(select_function, *inputs):
         print(f"Error: Function '{select_function}' not found.")
 
 
-
-
 def plt_heatmaps(df, data_len, selected): # , result_dir):
     import numpy as np
     import matplotlib.pyplot as plt
@@ -95,10 +93,94 @@ def plt_heatmaps(df, data_len, selected): # , result_dir):
         # plt.close()
         plt.show()
 
+def plt_encounter_metrics(df, selected, group_types, encounter_duration_threshold):
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+    import numpy as np
 
+    frames_per_minute = 1800
+
+    dataset_length = len(df.index.get_level_values('frame').unique())
+
+    # Example: Assuming df is already sorted by index and frame
+    df = df.sort_index()
+
+    # Identify encounter start and end
+    df['encounter_start'] = (df['encounter_count'].diff() == 1)
+    df['encounter_end'] = (df['encounter_count'].diff() == -1)
+
+    # Assign an encounter ID to each encounter (continuous blocks of 1s)
+    df['encounter_id'] = df['encounter_count'] * (df['encounter_count'].diff() != 0).cumsum()
+    df.loc[df['encounter_count'] == 0, 'encounter_id'] = np.nan  # Remove non-encounters
+
+    # Group by encounter_id and calculate duration
+    encounter_durations = df.groupby('encounter_id').size()
+    encounter_durations = encounter_durations[
+        (encounter_durations >= encounter_duration_threshold[0]) &
+        (encounter_durations <= encounter_duration_threshold[1])
+    ]
+
+    # Calculate encounter frequency per minute
+    # Calculate encounter frequency per minute (handling frame as an index)
+    encounter_starts = df[df['encounter_start']].groupby(level=['sub_dir', 'condition', 'genotype', 'group_type', 'group_id', 'individual_id'])
+    encounter_frequency = encounter_starts.apply(lambda x: x.index.get_level_values('frame').to_series().diff().fillna(frames_per_minute).lt(frames_per_minute).sum())
+
+
+    # Prepare a figure with subplots
+    plt.figure(figsize=(12, 5))
+
+    # Dictionary to store dataset counts (N)
+    dataset_counts = {}
+
+    # --- Encounter Duration KDE ---
+    plt.subplot(1, 2, 1)
+    for group, geno in selected.items():
+        # Filter df for the specific group type
+        group_df = df.xs((group, geno), level=["group_type", 'genotype'], drop_level=False)
+
+        # Determine number of datasets used
+        if group == "RGN":
+            dataset_counts[group] = group_df.index.get_level_values("individual_id").nunique()
+        else:  # AIB & AGB -> Estimate dataset count using frame count
+            total_frames = len(group_df)  # Total number of frames in bootstrapped dataset
+            dataset_counts[group] = int(np.round(total_frames / dataset_length))  # Estimate dataset count
+
+        # Get valid encounter durations
+        valid_encounter_ids = group_df['encounter_id'].dropna().unique()
+        durations = encounter_durations.loc[encounter_durations.index.intersection(valid_encounter_ids)]
+
+        if len(durations) > 1:
+            sns.kdeplot(durations, fill=True, label=f"{group} (N={dataset_counts[group]})")
+        else:
+            sns.histplot(durations, bins=20, kde=False, label=f"{group} (N={dataset_counts[group]})", alpha=0.5)
+
+    plt.xlabel("Encounter Duration (frames)")
+    plt.ylabel("Density")
+    plt.title("Encounter Duration KDE (Normalized)")
+    plt.legend()
+
+    # --- Encounter Frequency KDE ---
+    plt.subplot(1, 2, 2)
+    for group in group_types:
+        # Get encounter frequencies per group
+        freqs = encounter_frequency.xs(group, level="group_type", drop_level=False)
+
+        if len(freqs) > 1:
+            sns.kdeplot(freqs, fill=True, label=f"{group} (N={dataset_counts[group]})")
+        else:
+            sns.histplot(freqs, bins=20, kde=False, label=f"{group} (N={dataset_counts[group]})", alpha=0.5)
+
+    plt.xlabel("Encounter Frequency (per minute)")
+    plt.ylabel("Density")
+    plt.title("Encounter Frequency KDE (Normalized)")
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
 
 plot_functions = {
     "heatmaps": plt_heatmaps,
+    "encounter_metrics": plt_encounter_metrics,
 }
 
 
