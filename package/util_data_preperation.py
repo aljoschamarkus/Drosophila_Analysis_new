@@ -241,7 +241,7 @@ def create_mapping_semi_artificial_groups_bootstrapped(df, condition, group_size
 #
 #     return mapping_artificial_groups_exclusive
 
-def compute_pairwise_distances_and_encounters(df, distance_treshold_encounter):
+def compute_pairwise_distances_and_encounters(df, distance_threshold_encounter):
     """
     Computes:
     - Mean pairwise distances
@@ -288,7 +288,7 @@ def compute_pairwise_distances_and_encounters(df, distance_treshold_encounter):
         nearest_neighbor_distances[indices] = np.min(dist_matrix, axis=1)
 
         # Identify encounter events (count of times an individual is within threshold of others)
-        encounter_matrix = dist_matrix < distance_treshold_encounter
+        encounter_matrix = dist_matrix < distance_threshold_encounter
         encounter_counts[indices] = (encounter_matrix.sum(axis=1) > 1).astype(int)
 
     # Assign results
