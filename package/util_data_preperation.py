@@ -280,11 +280,13 @@ def compute_pairwise_distances_and_encounters(df, distance_threshold_encounter):
         # Compute pairwise distances
         dist_matrix = cdist(coords, coords)
 
-        # Compute mean distance per individual
-        mean_distances[indices] = dist_matrix.mean(axis=1)
+        # Set self-distances to infinity
+        np.fill_diagonal(dist_matrix, np.inf)
+
+        # Compute correct mean pairwise distance (excluding self-distances)
+        mean_distances[indices] = np.mean(dist_matrix[dist_matrix != np.inf])
 
         # Compute Nearest Neighbor Distance (NND) - minimum nonzero distance
-        np.fill_diagonal(dist_matrix, np.inf)  # Ignore self-distance by setting diagonal to infinity
         nearest_neighbor_distances[indices] = np.min(dist_matrix, axis=1)
 
         # Identify encounter events (count of times an individual is within threshold of others)

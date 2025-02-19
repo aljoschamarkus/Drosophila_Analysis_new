@@ -18,20 +18,20 @@ def plt_ND_over_time_curve_fitting_exp_decay(df, colors, x_pos, option):
     from scipy.spatial import distance_matrix
 
     df_plt = df.groupby(['frame']).mean()
-    df_clean = df_plt.dropna(subset=['PND'])
+    df_clean = df_plt.dropna(subset=['NND'])
 
     # Extract x_data from the index (assuming 'frame' is part of the index)
     x_data = df_clean.index.get_level_values('frame').to_numpy() / 1800
 
     # Extract y_data from the column
-    y_data_pnd = df_clean['PND'].to_numpy()
+    y_data_pnd = df_clean['NND'].to_numpy()
     # x_data = df_clean.index / 1800
     # y_data_pnd = df_clean['pairwise_distance']
     # y_data_nnd = df_clean['nearest_neighbor_distance']
 
     radius = 6.5  # cm
     num_points = 5
-    num_trials = 10000  # Monte Carlo simulations
+    num_trials = 1000  # Monte Carlo simulations
 
     # Function to generate random points inside a circle
     def generate_random_points_in_circle(radius, num_points):
@@ -90,32 +90,31 @@ def plt_ND_over_time_curve_fitting_exp_decay(df, colors, x_pos, option):
     dt = abs(x_0) * 60
 
     # Extend x range for plotting
-    x_extended = np.linspace(min(x_data) - abs(x_0), max(x_data), 500)
+    # x_extended = np.linspace(min(x_data) - abs(x_0), max(x_data), 500)
 
     # Plot results
-    plt.scatter(x_data, y_data_pnd, label=f"{option}", color=colors[1], s=10)
-    plt.plot(x_extended, exp_growth(x_extended, *popt_exp), label=f"{option} (R²={r_squared_exp:.3f}), asymptote: {a_exp + c_exp:.3f}, slope parameter: {b_exp:.3f}",
+    # plt.scatter(x_data, y_data_pnd, label=f"{option}", color=colors[1], s=10)
+    plt.plot(x_data, exp_growth(x_data, *popt_exp), label=f"{option} (R²={r_squared_exp:.3f}), asymptote: {a_exp + c_exp:.3f}, slope parameter: {b_exp:.3f}",
              color=colors[0])
 
     # Mark x_0 on the plot
-    plt.axvline(x=x_0, color=colors[0], linestyle='dashed')#, label=f"x_0 = {x_0:.3f}")
+    # plt.axvline(x=x_0, color=colors, linestyle='dashed')#, label=f"x_0 = {x_0:.3f}")
     # plt.axhline(y=, color='black', linewidth=0.8)
 
     # Labels and legend
     # plt.title("Extended Exponential Growth Fit")
     # plt.show()
-    plt.axhline(avg_pnd, color=colors[0], label=f'{option} avg PND min 3-4: {avg_pnd:.3f}', linestyle='dashed')
-    plt.axhline(avg_pnd_mc, color='purple', label=f'statistical avg: {avg_pnd_mc:.3f}', linestyle='dotted')
+    plt.axhline(avg_nnd, x_0, 4, color=colors[1], label=f'{option} avg PND min 3-4: {avg_nnd:.3f}', linestyle='dashed')
     # plt.axhline(avg_pnd_mc, x_0, 4, color='green', label=f'avg PND mc simulation: {avg_pnd_mc:.3f}')
 
     # plt.text(x_pos, 0.2, f'fitted curve: $y = {a_exp:.3f}(1 - e^{{-{b_exp:.3f}x}}) + {c_exp:.3f}$',
     #          transform=plt.gca().transAxes, fontsize=10, verticalalignment='center', color=colors[1])
-    plt.text(x_pos, 0.5, f'$y = {a_exp + c_exp:.3f}(1 - e^{{-{b_exp:.3f}(x+{abs(x_0):.3f})}})$',
-             transform=plt.gca().transAxes, fontsize=10, verticalalignment='center', color=colors[1])
-    plt.text(x_pos, 0.45, f'delayed start: {dt:.3f}',
-             transform=plt.gca().transAxes, fontsize=10, verticalalignment='center', color=colors[1])
+    # plt.text(x_pos, 0.35, f'$y = {a_exp + c_exp:.3f}(1 - e^{{-{b_exp:.3f}(x+{abs(x_0):.3f})}})$',
+    #          transform=plt.gca().transAxes, fontsize=10, verticalalignment='center', color=colors[1])
+    # plt.text(x_pos, 0.1, f'delayed start: {dt:.3f}',
+    #          transform=plt.gca().transAxes, fontsize=10, verticalalignment='center', color=colors[1])
 
-    plt.legend()
+    plt.legend(facecolor=None, edgecolor=None, framealpha=0.0)
     plt.xlabel("Time (min)")
     plt.ylabel("Pairwise Distance (cm)")
     # plt.show()
@@ -124,10 +123,10 @@ def plt_ND_over_time_curve_fitting_exp_decay(df, colors, x_pos, option):
 
     print(f'y = {a_exp:.2f}(1 - e^(-{b_exp:.2f}x)) + {c_exp:.2f}')
 
-plt_ND_over_time_curve_fitting_exp_decay(df_AIB, colors[1], 0.7, 'Individuals')
-plt_ND_over_time_curve_fitting_exp_decay(df_RGN, colors[0], 0.4, 'Groups')
-# plt_ND_over_time_curve_fitting_exp_decay(df_RGN_WT, colors[2], 0, 'RGN-WT')
-# plt_ND_over_time_curve_fitting_exp_decay(df_AIB_WT, colors[3], 0, 'AIB-WT')
+plt_ND_over_time_curve_fitting_exp_decay(df_RGN_nomp, colors[0], 0, 'groups-nompCxCrimson')
+plt_ND_over_time_curve_fitting_exp_decay(df_AIB_nomp, colors[1], 0, 'individuals-nompCxCrimson')
+plt_ND_over_time_curve_fitting_exp_decay(df_RGN_WT, colors[2], 0, 'groups-WTxCrimson')
+plt_ND_over_time_curve_fitting_exp_decay(df_AIB_WT, colors[3], 0, 'individuals-WTxCrimson')
 
-plt.savefig("/Users/aljoscha/Downloads/plot1.pdf")
+plt.savefig("/Users/aljoscha/Downloads/plot4.pdf", transparent=True)
 plt.show()

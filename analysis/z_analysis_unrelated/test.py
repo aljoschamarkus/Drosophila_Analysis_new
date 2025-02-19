@@ -8,4 +8,3 @@ x = np.array(list(range(0, 500, 1))) * 0.01
 y = (x**2 + df)
 plt.scatter(x, y)
 plt.show()
-

@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
-df = pd.read_pickle('/Users/aljoscha/Downloads/results/data/df_group_parameters.pkl')
+df = pd.read_pickle('/Users/aljoscha/Downloads/2012_nompC_Crimson_WT_4min_50p_TRex_beta_2101/results/data/df_group_parameters.pkl')
 df_RGN_nomp = df.xs(('RGN', 'nompCxCrimson'), level=['group_type', 'genotype'])
 df_AIB_nomp = df.xs(('AIB', 'nompCxCrimson'), level=['group_type', 'genotype'])
 df_RGN_WT = df.xs(('RGN', 'WTxCrimson'), level=['group_type', 'genotype'])
@@ -17,14 +17,14 @@ def plt_ND_over_time_curve_fitting_exp_decay(df, colors, x_pos, option):
     import numpy as np
     from scipy.spatial import distance_matrix
 
-    df_plt = df.groupby(['frame']).mean()
-    df_clean = df_plt.dropna(subset=['PND'])
+    df_plt = df.groupby(['frame']).median()
+    df_clean = df_plt.dropna(subset=['nearest_neighbor_distance'])
 
     # Extract x_data from the index (assuming 'frame' is part of the index)
     x_data = df_clean.index.get_level_values('frame').to_numpy() / 1800
 
     # Extract y_data from the column
-    y_data_pnd = df_clean['PND'].to_numpy()
+    y_data_pnd = df_clean['nearest_neighbor_distance'].to_numpy()
     # x_data = df_clean.index / 1800
     # y_data_pnd = df_clean['pairwise_distance']
     # y_data_nnd = df_clean['nearest_neighbor_distance']
@@ -59,15 +59,15 @@ def plt_ND_over_time_curve_fitting_exp_decay(df, colors, x_pos, option):
         avg_pnd_mc.append(avg_pnd_pre)
 
     # Compute final average neighbor distance
-    avg_nnd_mc = np.mean(avg_nnd_mc)
+    avg_nnd_mc = np.median(avg_nnd_mc)
     avg_pnd_mc = np.mean(avg_pnd_mc)
     print(f"Average nearest-neighbor distance: {avg_nnd_mc} cm")
     print(f"Average pairwise distance: {avg_pnd_mc} cm")
 
     max_frame = df.index.get_level_values('frame').max()
     df_last_1800 = df.xs(slice(max_frame - 1799, max_frame), level='frame', drop_level=False)
-    avg_nnd = df_last_1800['NND'].mean()
-    avg_pnd = df_last_1800['PND'].mean()
+    avg_nnd = df_last_1800['nearest_neighbor_distance'].median()
+    avg_pnd = df_last_1800['pairwise_distance'].mean()
     # df2 = df_last_1800.groupby(['frame']).mean()
     # average_pairwise_distance1 = df2['pairwise_distance'].mean()
     print("Average pairwise distance for last 1800 frames:", avg_nnd)
@@ -90,30 +90,30 @@ def plt_ND_over_time_curve_fitting_exp_decay(df, colors, x_pos, option):
     dt = abs(x_0) * 60
 
     # Extend x range for plotting
-    x_extended = np.linspace(min(x_data) - abs(x_0), max(x_data), 500)
+    # x_extended = np.linspace(min(x_data) - abs(x_0), max(x_data), 500)
 
     # Plot results
     plt.scatter(x_data, y_data_pnd, label=f"{option}", color=colors[1], s=10)
-    plt.plot(x_extended, exp_growth(x_extended, *popt_exp), label=f"{option} (R²={r_squared_exp:.3f}), asymptote: {a_exp + c_exp:.3f}, slope parameter: {b_exp:.3f}",
+    plt.plot(x_data, exp_growth(x_data, *popt_exp), label=f"{option} (R²={r_squared_exp:.3f}), asymptote: {a_exp + c_exp:.3f}, slope parameter: {b_exp:.3f}",
              color=colors[0])
 
     # Mark x_0 on the plot
-    plt.axvline(x=x_0, color=colors[0], linestyle='dashed')#, label=f"x_0 = {x_0:.3f}")
+    # plt.axvline(x=x_0, color=colors, linestyle='dashed')#, label=f"x_0 = {x_0:.3f}")
     # plt.axhline(y=, color='black', linewidth=0.8)
 
     # Labels and legend
     # plt.title("Extended Exponential Growth Fit")
     # plt.show()
-    plt.axhline(avg_pnd, color=colors[0], label=f'{option} avg PND min 3-4: {avg_pnd:.3f}', linestyle='dashed')
-    plt.axhline(avg_pnd_mc, color='purple', label=f'statistical avg: {avg_pnd_mc:.3f}', linestyle='dotted')
+    plt.axhline(avg_nnd, color=colors[0], label=f'{option} avg PND min 3-4: {avg_nnd:.3f}', linestyle='dashed')
+    plt.axhline(avg_nnd_mc, color='purple', label=f'statistical avg: {avg_nnd_mc:.3f}', linestyle='dotted')
     # plt.axhline(avg_pnd_mc, x_0, 4, color='green', label=f'avg PND mc simulation: {avg_pnd_mc:.3f}')
 
     # plt.text(x_pos, 0.2, f'fitted curve: $y = {a_exp:.3f}(1 - e^{{-{b_exp:.3f}x}}) + {c_exp:.3f}$',
     #          transform=plt.gca().transAxes, fontsize=10, verticalalignment='center', color=colors[1])
-    plt.text(x_pos, 0.5, f'$y = {a_exp + c_exp:.3f}(1 - e^{{-{b_exp:.3f}(x+{abs(x_0):.3f})}})$',
+    plt.text(x_pos, 0.25, f'$y = {a_exp + c_exp:.3f}(1 - e^{{-{b_exp:.3f}(x+{abs(x_0):.3f})}})$',
              transform=plt.gca().transAxes, fontsize=10, verticalalignment='center', color=colors[1])
-    plt.text(x_pos, 0.45, f'delayed start: {dt:.3f}',
-             transform=plt.gca().transAxes, fontsize=10, verticalalignment='center', color=colors[1])
+    # plt.text(x_pos, 0.1, f'delayed start: {dt:.3f}',
+    #          transform=plt.gca().transAxes, fontsize=10, verticalalignment='center', color=colors[1])
 
     plt.legend()
     plt.xlabel("Time (min)")
@@ -129,5 +129,5 @@ plt_ND_over_time_curve_fitting_exp_decay(df_RGN, colors[0], 0.4, 'Groups')
 # plt_ND_over_time_curve_fitting_exp_decay(df_RGN_WT, colors[2], 0, 'RGN-WT')
 # plt_ND_over_time_curve_fitting_exp_decay(df_AIB_WT, colors[3], 0, 'AIB-WT')
 
-plt.savefig("/Users/aljoscha/Downloads/plot1.pdf")
+plt.savefig("/Users/aljoscha/Downloads/plot2.pdf")
 plt.show()

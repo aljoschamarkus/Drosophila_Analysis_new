@@ -17,7 +17,7 @@ def plt_ND_over_time_curve_fitting_exp_decay(df, colors, x_pos, option):
     import numpy as np
     from scipy.spatial import distance_matrix
 
-    df_plt = df.groupby(['frame']).mean()
+    df_plt = df.groupby(['frame']).median()
     df_clean = df_plt.dropna(subset=['PND'])
 
     # Extract x_data from the index (assuming 'frame' is part of the index)
@@ -25,13 +25,21 @@ def plt_ND_over_time_curve_fitting_exp_decay(df, colors, x_pos, option):
 
     # Extract y_data from the column
     y_data_pnd = df_clean['PND'].to_numpy()
+
+    # df['frame_bin'] = (df.index.get_level_values('frame') // 3) * 3  # Assign each frame to a bin
+    # df_binned = df.groupby('frame_bin').mean()  # Average values within bins
+    # x_data = df_binned.index.to_numpy() / 1800
+    # y_data_pnd = df_binned['PND'].to_numpy()
+
+
+
     # x_data = df_clean.index / 1800
     # y_data_pnd = df_clean['pairwise_distance']
     # y_data_nnd = df_clean['nearest_neighbor_distance']
 
     radius = 6.5  # cm
     num_points = 5
-    num_trials = 10000  # Monte Carlo simulations
+    num_trials = 1000  # Monte Carlo simulations
 
     # Function to generate random points inside a circle
     def generate_random_points_in_circle(radius, num_points):
@@ -60,14 +68,14 @@ def plt_ND_over_time_curve_fitting_exp_decay(df, colors, x_pos, option):
 
     # Compute final average neighbor distance
     avg_nnd_mc = np.mean(avg_nnd_mc)
-    avg_pnd_mc = np.mean(avg_pnd_mc)
+    avg_pnd_mc = np.median(avg_pnd_mc)
     print(f"Average nearest-neighbor distance: {avg_nnd_mc} cm")
     print(f"Average pairwise distance: {avg_pnd_mc} cm")
 
     max_frame = df.index.get_level_values('frame').max()
     df_last_1800 = df.xs(slice(max_frame - 1799, max_frame), level='frame', drop_level=False)
     avg_nnd = df_last_1800['NND'].mean()
-    avg_pnd = df_last_1800['PND'].mean()
+    avg_pnd = df_last_1800['PND'].median()
     # df2 = df_last_1800.groupby(['frame']).mean()
     # average_pairwise_distance1 = df2['pairwise_distance'].mean()
     print("Average pairwise distance for last 1800 frames:", avg_nnd)
@@ -90,15 +98,15 @@ def plt_ND_over_time_curve_fitting_exp_decay(df, colors, x_pos, option):
     dt = abs(x_0) * 60
 
     # Extend x range for plotting
-    x_extended = np.linspace(min(x_data) - abs(x_0), max(x_data), 500)
+    # x_extended = np.linspace(min(x_data) - abs(x_0), max(x_data), 500)
 
     # Plot results
     plt.scatter(x_data, y_data_pnd, label=f"{option}", color=colors[1], s=10)
-    plt.plot(x_extended, exp_growth(x_extended, *popt_exp), label=f"{option} (R²={r_squared_exp:.3f}), asymptote: {a_exp + c_exp:.3f}, slope parameter: {b_exp:.3f}",
+    plt.plot(x_data, exp_growth(x_data, *popt_exp), label=f"{option} (R²={r_squared_exp:.3f}), asymptote: {a_exp + c_exp:.3f}, slope parameter: {b_exp:.3f}",
              color=colors[0])
 
     # Mark x_0 on the plot
-    plt.axvline(x=x_0, color=colors[0], linestyle='dashed')#, label=f"x_0 = {x_0:.3f}")
+    # plt.axvline(x=x_0, color=colors, linestyle='dashed')#, label=f"x_0 = {x_0:.3f}")
     # plt.axhline(y=, color='black', linewidth=0.8)
 
     # Labels and legend
@@ -110,10 +118,10 @@ def plt_ND_over_time_curve_fitting_exp_decay(df, colors, x_pos, option):
 
     # plt.text(x_pos, 0.2, f'fitted curve: $y = {a_exp:.3f}(1 - e^{{-{b_exp:.3f}x}}) + {c_exp:.3f}$',
     #          transform=plt.gca().transAxes, fontsize=10, verticalalignment='center', color=colors[1])
-    plt.text(x_pos, 0.5, f'$y = {a_exp + c_exp:.3f}(1 - e^{{-{b_exp:.3f}(x+{abs(x_0):.3f})}})$',
+    plt.text(x_pos, 0.4, f'$y = {a_exp + c_exp:.3f}(1 - e^{{-{b_exp:.3f}(x+{abs(x_0):.3f})}})$',
              transform=plt.gca().transAxes, fontsize=10, verticalalignment='center', color=colors[1])
-    plt.text(x_pos, 0.45, f'delayed start: {dt:.3f}',
-             transform=plt.gca().transAxes, fontsize=10, verticalalignment='center', color=colors[1])
+    # plt.text(x_pos, 0.1, f'delayed start: {dt:.3f}',
+    #          transform=plt.gca().transAxes, fontsize=10, verticalalignment='center', color=colors[1])
 
     plt.legend()
     plt.xlabel("Time (min)")
