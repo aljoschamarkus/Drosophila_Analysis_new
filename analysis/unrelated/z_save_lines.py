@@ -67,3 +67,31 @@
 #
 #     else:
 #         print("No encounters detected for this group.")
+
+########################################################################################################################
+
+"""speed filtering"""
+
+# def remove_outliers(csv_data, speed_threshold, seed):
+#     """Remove speed outliers beyond threshold * std deviation."""
+#     # mean_speed = csv_data['speed_manual'].mean()
+#     # std_speed = csv_data['speed_manual'].std()
+#     # threshold = mean_speed + threshold_factor * std_speed
+#     # csv_data.loc[csv_data[seed] < speed_threshold[0], seed] = np.nan
+#     # csv_data.loc[csv_data[seed] > speed_threshold[1], seed] = np.nan
+#     return csv_data
+
+# def plot_speed(csv_data):
+#     """Plot original and smoothed speed."""
+#     import matplotlib.pyplot as plt
+#     plt.figure(figsize=(10, 5))
+#     plt.plot(csv_data['frame'], csv_data['speed_manual'], label='manual Speed', linewidth=2)
+#     plt.plot(csv_data['frame'], csv_data['speed_processed'], label='Processed Speed', linewidth=2)
+#     plt.xlabel('Frame')
+#     plt.ylabel('Speed (cm/s)')
+#     plt.legend()
+#     plt.show()
+
+# csv_data.loc[
+#     csv_data['speed_processed'] > speed_initial_threshold, 'speed_processed'] = np.nan
+

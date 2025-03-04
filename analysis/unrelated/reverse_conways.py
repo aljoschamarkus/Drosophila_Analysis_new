@@ -10,7 +10,7 @@ def load_image(image_path):
     image_original = Image.open(image_path)
 
     image = ImageOps.invert(image)
-    image = image.resize((420, 60))
+    image = image.resize((315, 45))
     plt.imshow(image_original)
     plt.show()
     binary_image = np.array(image) > 0  # Threshold to create a binary image
@@ -41,11 +41,11 @@ def animate_frames(frames):
         im.set_data(frames[-(frame + 1)])# Play backwards
         return im,
 
-    ani = animation.FuncAnimation(fig, update, frames=len(frames), interval=30, blit=True, repeat=False)
+    ani = animation.FuncAnimation(fig, update, frames=len(frames), interval=100, blit=True, repeat=False)
     ani.save('/Users/aljoscha/Downloads/animation1.mp4', writer='ffmpeg', fps=20, dpi=600)
     plt.show()
 
-def main(image_path, num_frames=50):
+def main(image_path, num_frames=40):
     """Main function to load, process, and animate the image."""
     binary_image = load_image(image_path)
     frames = generate_frames(binary_image, num_frames)
