@@ -6,20 +6,25 @@ import pandas as pd
 from package.util_data_preperation import handle_main_dir
 from package.util_data_preperation import create_mapping_actual_groups
 from package.util_data_preperation import create_mapping_artificial_groups_bootstrapped
-from package.util_data_preperation import create_mapping_semi_artificial_groups_bootstrapped
+# from package.util_data_preperation import create_mapping_semi_artificial_groups_bootstrapped
 from package.util_data_preperation import compute_pairwise_distances_and_encounters
 
 from package import config_settings
 
 # Constants and configuration
-main_dir = config_settings.main_dir
+main_dir = config_settings.main_dir_p2
 condition = config_settings.condition
-genotype = config_settings.genotype
+genotype = config_settings.genotype_p2
 quality = config_settings.quality
 dish_radius = config_settings.dish_radius
 group_size = config_settings.group_size
-bootstrap_reps = config_settings.bootstrap_reps
-distance_threshold_encounter = config_settings.distance_threshold_encounter
+bootstrap_reps = config_settings.bootstrap_reps_p2
+
+fps = config_settings.fps
+speed_initial_threshold = config_settings.speed_initial_threshold
+speed_avg_threshold = config_settings.speed_avg_threshold
+speed_avg_window = config_settings.speed_avg_window
+encounter_distance_threshold = config_settings.encounter_distance_threshold
 
 counter = 0
 
@@ -91,7 +96,41 @@ for i in range(len(condition)):
                     csv_data['Y#wcentroid (cm)'] *= conversion_factor
                     csv_data['X#wcentroid (cm)'] += 7
                     csv_data['Y#wcentroid (cm)'] += 7
-                    csv_data['SPEED#wcentroid (cm/s)'] *= conversion_factor * 30
+                    csv_data['SPEED#wcentroid (cm/s)'] *= conversion_factor
+                    csv_data['speed_processed'] = csv_data['SPEED#wcentroid (cm/s)']
+
+                    def compute_speed(csv_data, fps=fps):
+                        """Calculate speed in cm/s from position data."""
+                        dx = csv_data['X#wcentroid (cm)'].diff()
+                        dy = csv_data['Y#wcentroid (cm)'].diff()
+                        csv_data['speed_manual'] = np.sqrt(dx ** 2 + dy ** 2) * fps
+                        return csv_data
+
+                    def smooth_speed(csv_data, window=5, method='rolling',input_speed='speed_manual'):
+                        from scipy.signal import savgol_filter
+                        """Smooth speed using a rolling average or Savitzky-Golay filter."""
+                        if method == 'rolling':
+                            csv_data[input_speed] = csv_data[input_speed].rolling(window=window, center=True).mean()
+                        elif method == 'savgol':
+                            csv_data[input_speed] = savgol_filter(csv_data[input_speed], window_length=window, polyorder=2, mode='interp')
+                        return csv_data
+
+                    csv_data = compute_speed(csv_data, fps)
+                    # csv_data = smooth_speed(csv_data, speed_avg_window, method='rolling', input_speed='speed_processed')
+                    # csv_data = smooth_speed(csv_data, speed_avg_window, method='rolling', input_speed='speed_manual')
+
+                    def plot_speed(csv_data):
+                        """Plot original and smoothed speed."""
+                        import matplotlib.pyplot as plt
+                        plt.figure(figsize=(10, 5))
+                        plt.plot(csv_data['frame'], csv_data['speed_manual'], label='manual Speed', linewidth=2)
+                        plt.plot(csv_data['frame'], csv_data['speed_processed'], label='Processed Speed', linewidth=2)
+                        plt.xlabel('Frame')
+                        plt.ylabel('Speed (cm/s)')
+                        plt.legend()
+                        plt.show()
+
+                    plot_speed(csv_data)
 
                     # Add metadata to the DataFrame
                     csv_data['midline_offset_signless'] = np.abs(csv_data['MIDLINE_OFFSET'])
@@ -99,7 +138,6 @@ for i in range(len(condition)):
                     csv_data['condition'] = condition[i]
                     csv_data['genotype'] = geno
                     csv_data['individual_id'] = f'I_ID_{counter}'
-
 
                     # Append the data to the main list
                     data_frame.append(csv_data)
@@ -116,7 +154,8 @@ df_initial = df_initial.rename(columns={
     'X#wcentroid (cm)': 'x',
     'Y#wcentroid (cm)': 'y'
 })
-df_initial.to_pickle(os.path.join(results_data_dir, "df_initial.pkl"))
+
+df_initial.to_pickle(os.path.join(results_data_dir, "df_initial_p2.pkl"))
 
 print("Index names:", df_initial.index.names)
 print("Columns:", df_initial.columns.tolist())
@@ -126,14 +165,14 @@ print("Data frame shape:", df_initial.shape)
 mapping_functions = {
     "map_RGN": create_mapping_actual_groups,
     "map_AIB": create_mapping_artificial_groups_bootstrapped,
-    "map_AGB": create_mapping_semi_artificial_groups_bootstrapped,
+    # "map_AGB": create_mapping_semi_artificial_groups_bootstrapped,
 }
 
 # Define the corresponding conditions for each function
 mapping_conditions = {
     "map_RGN": condition[0],
     "map_AIB": condition[1],
-    "map_AGB": condition[0],
+    # "map_AGB": condition[0],
 }
 
 mapping_list = []
@@ -158,26 +197,26 @@ for name, func in mapping_functions.items():
 # Now you can access the data as:
 map_RGN = mapping_list[0]
 map_AIB = mapping_list[1]
-map_AGB = mapping_list[2]
+# map_AGB = mapping_list[2]
 
 map_RGN['group_type'] = 'RGN'
 map_AIB['group_type'] = 'AIB'
-map_AGB['group_type'] = 'AGB'
+# map_AGB['group_type'] = 'AGB'
 
-map_combined = pd.concat([map_RGN, map_AIB, map_AGB])
+map_combined = pd.concat([map_RGN, map_AIB]) # , map_AGB])
 
 df_merged = df_initial.reset_index().merge(map_combined, on='individual_id', how='inner')
 
 df_groups = df_merged.set_index(['sub_dir', 'condition', 'genotype', 'group_type', 'group_id', 'individual_id', 'frame'])
 
-df_groups.to_pickle(os.path.join(results_data_dir, "df_groups.pkl"))
+df_groups.to_pickle(os.path.join(results_data_dir, "df_groups_p2.pkl"))
 
 print("Index names:", df_groups.index.names)
 print("Columns:", df_groups.columns.tolist())
 print("Data frame shape:", df_groups.shape)
 
-df_group_parameters = compute_pairwise_distances_and_encounters(df_groups, distance_threshold_encounter)
-df_group_parameters.to_pickle(os.path.join(results_data_dir, "df_group_parameters.pkl"))
+df_group_parameters = compute_pairwise_distances_and_encounters(df_groups, encounter_distance_threshold)
+df_group_parameters.to_pickle(os.path.join(results_data_dir, "df_group_parameters_p2.pkl"))
 
 print("Index names:", df_group_parameters.index.names)
 print("Columns:", df_group_parameters.columns.tolist())

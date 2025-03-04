@@ -36,11 +36,25 @@ def handle_main_dir(main_directory, condition):
     return group_dir, single_dir, results_data_dir, results_plt_dir
 
 
+def handle_main_dir_p2():
+
+    import os
+
+    results_main_dir = '/Users/aljoscha/Downloads/results'
+    os.makedirs(results_main_dir, exist_ok=True)
+    results_data_dir = os.path.join(results_main_dir, 'data')
+    os.makedirs(results_data_dir, exist_ok=True)
+    results_plt_dir = os.path.join(results_main_dir, 'plt')
+    os.makedirs(results_plt_dir, exist_ok=True)
+
+    return results_data_dir, results_plt_dir
+
+
 import pandas as pd
 import random
 
 
-def create_mapping_actual_groups(df, condition):
+def create_mapping_actual_groups(df):
     """
     Creates actual groups by assigning each 'individual_id' a unique 'group_id'
     while still grouping within 'sub_dir'.
@@ -53,7 +67,7 @@ def create_mapping_actual_groups(df, condition):
         pd.DataFrame: A mapping DataFrame with ['individual_id', 'group_id'].
     """
     # Filter for the specified condition
-    df_filtered = df[df.index.get_level_values('condition') == condition]
+    df_filtered = df[df.index.get_level_values('condition') == "group"]
 
     # Store mappings
     mapping_data = []
@@ -79,7 +93,7 @@ def create_mapping_actual_groups(df, condition):
     return pd.DataFrame(mapping_data)
 
 
-def create_mapping_artificial_groups_bootstrapped(df, condition, group_size, bootstrap_reps=2):
+def create_mapping_artificial_groups_bootstrapped(df, group_size=5, bootstrap_reps=2):
     """
     Creates artificial groups by bootstrapping within genotypes, ensuring each 'individual_id'
     is used instead of 'sub_dir', while maintaining grouping logic.
@@ -98,7 +112,7 @@ def create_mapping_artificial_groups_bootstrapped(df, condition, group_size, boo
             "The input DataFrame must have a MultiIndex with levels ['sub_dir', 'individual_id', 'condition', 'genotype', 'frame'].")
 
     # Filter data for the given condition
-    df_filtered = df[df.index.get_level_values('condition') == condition]
+    df_filtered = df[df.index.get_level_values('condition') == "single"]
     mapping_list = []
 
     # Iterate over each genotype
@@ -128,53 +142,53 @@ def create_mapping_artificial_groups_bootstrapped(df, condition, group_size, boo
     return pd.DataFrame(mapping_list)
 
 
-def create_mapping_semi_artificial_groups_bootstrapped(df, condition, group_size, bootstrap_reps=2):
-    """
-    Creates artificial groups by bootstrapping within genotypes, ensuring that no group
-    contains data from the same sub_dir more than once, while using 'individual_id' as the key.
-
-    Args:
-        df (pd.DataFrame): Multi-indexed DataFrame with levels ['sub_dir', 'individual_id', 'condition', 'genotype', 'frame'].
-        condition (str): The condition used to filter data.
-        group_size (int): Size of each group.
-        bootstrap_reps (int): Number of times to apply bootstrapping.
-
-    Returns:
-        pd.DataFrame: A mapping table linking individuals ('individual_id') to artificial groups.
-    """
-    if not isinstance(df.index, pd.MultiIndex):
-        raise ValueError(
-            "The input DataFrame must have a MultiIndex with levels ['sub_dir', 'individual_id', 'condition', 'genotype', 'frame'].")
-
-    df_filtered = df[df.index.get_level_values('condition') == condition]
-    mapping_list = []
-
-    for geno, geno_df in df_filtered.groupby(level='genotype'):
-        sub_dir_groups = geno_df.groupby(level='sub_dir')
-        sub_dir_to_individuals = {sub_dir: list(sub_dir_df.index.get_level_values('individual_id').unique()) for
-                                  sub_dir, sub_dir_df in sub_dir_groups}
-        sub_dirs = list(sub_dir_to_individuals.keys())
-        group_id_counter = 0
-
-        if len(sub_dirs) < group_size:
-            raise ValueError(f"Not enough trials for genotype {geno} to form groups of size {group_size}.")
-
-        for _ in range(bootstrap_reps):
-            random.shuffle(sub_dirs)
-            used_sub_dirs = set()
-
-            while len(used_sub_dirs) + group_size <= len(sub_dirs):
-                group_sub_dirs = random.sample([sub for sub in sub_dirs if sub not in used_sub_dirs], group_size)
-                group_id = f"G_ID_AGB_{geno}_{group_id_counter}"
-
-                for sub_dir in group_sub_dirs:
-                    individual_id = random.choice(sub_dir_to_individuals[sub_dir])
-                    mapping_list.append({'individual_id': individual_id, 'group_id': group_id})
-
-                used_sub_dirs.update(group_sub_dirs)
-                group_id_counter += 1
-
-    return pd.DataFrame(mapping_list)
+# def create_mapping_semi_artificial_groups_bootstrapped(df, condition, group_size, bootstrap_reps=2):
+#     """
+#     Creates artificial groups by bootstrapping within genotypes, ensuring that no group
+#     contains data from the same sub_dir more than once, while using 'individual_id' as the key.
+#
+#     Args:
+#         df (pd.DataFrame): Multi-indexed DataFrame with levels ['sub_dir', 'individual_id', 'condition', 'genotype', 'frame'].
+#         condition (str): The condition used to filter data.
+#         group_size (int): Size of each group.
+#         bootstrap_reps (int): Number of times to apply bootstrapping.
+#
+#     Returns:
+#         pd.DataFrame: A mapping table linking individuals ('individual_id') to artificial groups.
+#     """
+#     if not isinstance(df.index, pd.MultiIndex):
+#         raise ValueError(
+#             "The input DataFrame must have a MultiIndex with levels ['sub_dir', 'individual_id', 'condition', 'genotype', 'frame'].")
+#
+#     df_filtered = df[df.index.get_level_values('condition') == condition]
+#     mapping_list = []
+#
+#     for geno, geno_df in df_filtered.groupby(level='genotype'):
+#         sub_dir_groups = geno_df.groupby(level='sub_dir')
+#         sub_dir_to_individuals = {sub_dir: list(sub_dir_df.index.get_level_values('individual_id').unique()) for
+#                                   sub_dir, sub_dir_df in sub_dir_groups}
+#         sub_dirs = list(sub_dir_to_individuals.keys())
+#         group_id_counter = 0
+#
+#         if len(sub_dirs) < group_size:
+#             raise ValueError(f"Not enough trials for genotype {geno} to form groups of size {group_size}.")
+#
+#         for _ in range(bootstrap_reps):
+#             random.shuffle(sub_dirs)
+#             used_sub_dirs = set()
+#
+#             while len(used_sub_dirs) + group_size <= len(sub_dirs):
+#                 group_sub_dirs = random.sample([sub for sub in sub_dirs if sub not in used_sub_dirs], group_size)
+#                 group_id = f"G_ID_AGB_{geno}_{group_id_counter}"
+#
+#                 for sub_dir in group_sub_dirs:
+#                     individual_id = random.choice(sub_dir_to_individuals[sub_dir])
+#                     mapping_list.append({'individual_id': individual_id, 'group_id': group_id})
+#
+#                 used_sub_dirs.update(group_sub_dirs)
+#                 group_id_counter += 1
+#
+#     return pd.DataFrame(mapping_list)
 
 # def create_mapping_semi_artificial_groups_bootstrapped(df, condition, group_size, bootstrap_reps=2):
 #     """
