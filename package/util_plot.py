@@ -1,3 +1,6 @@
+from numpy.ma.core import append
+
+
 def main_plot(select_function, *inputs):
     """Dynamically select and call a plot function."""
     if select_function in plot_functions:
@@ -14,14 +17,16 @@ def main_plot(select_function, *inputs):
         print(f"Error: Function '{select_function}' not found.")
 
 
-def plt_heatmaps(df, data_len, selected): # , result_dir):
+def plt_heatmaps_density(df, selected, num_bins): # , result_dir):
     import numpy as np
     import matplotlib.pyplot as plt
     from matplotlib.colors import LogNorm
-    frame_bin_size = (data_len + 1) / 2
+
+    data_len = len(df.index.get_level_values('frame').unique())
+    frame_bin_size = data_len / num_bins
     grid_size = 0.2
 
-    for cond, geno in selected.items():
+    for cond, geno in selected:
         x_plt = df.xs((cond, geno),
                       level=['condition', 'genotype'])['x'].dropna().values
         y_plt = df.xs((cond, geno),
@@ -87,13 +92,13 @@ def plt_heatmaps(df, data_len, selected): # , result_dir):
 
         # Add overall title
         fig.suptitle(f"Heatmaps of Trajectories for Condition: {cond} {geno}", fontsize=16)
-
+        fig.canvas.manager.set_window_title(f"Heatmap_{cond}_{geno}_{num_bins}")
         plt.subplots_adjust(right=0.85, top=0.85)
         # plt.savefig(os.path.join(result_dir, f"{cond}_{geno}.png"))
         # plt.close()
         plt.show()
 
-def plt_encounter_metrics(df, selected, group_types, encounter_duration_threshold):
+def plt_encounter_metrics(df, selected, encounter_duration_threshold):
     import seaborn as sns
     import matplotlib.pyplot as plt
     import numpy as np
@@ -134,10 +139,8 @@ def plt_encounter_metrics(df, selected, group_types, encounter_duration_threshol
 
     # --- Encounter Duration KDE ---
     plt.subplot(1, 2, 1)
-    for group, geno in selected.items():
-        # Filter df for the specific group type
-        group_df = df.xs((group, geno), level=["group_type", 'genotype'], drop_level=False)
-
+    for group, geno in selected:
+        group_df = df.xs((group, geno), level=["group_type", "genotype"], drop_level=False)
         # Determine number of datasets used
         if group == "RGN":
             dataset_counts[group] = group_df.index.get_level_values("individual_id").nunique()
@@ -150,9 +153,9 @@ def plt_encounter_metrics(df, selected, group_types, encounter_duration_threshol
         durations = encounter_durations.loc[encounter_durations.index.intersection(valid_encounter_ids)]
 
         if len(durations) > 1:
-            sns.kdeplot(durations, fill=True, label=f"{group} (N={dataset_counts[group]})")
+            sns.kdeplot(durations, fill=True, label=f"{group}-{geno} (N={dataset_counts[group]})")
         else:
-            sns.histplot(durations, bins=20, kde=False, label=f"{group} (N={dataset_counts[group]})", alpha=0.5)
+            sns.histplot(durations, bins=20, kde=False, label=f"{group}-{geno} (N={dataset_counts[group]})", alpha=0.3)
 
     plt.xlabel("Encounter Duration (frames)")
     plt.ylabel("Density")
@@ -161,14 +164,13 @@ def plt_encounter_metrics(df, selected, group_types, encounter_duration_threshol
 
     # --- Encounter Frequency KDE ---
     plt.subplot(1, 2, 2)
-    for group in group_types:
-        # Get encounter frequencies per group
-        freqs = encounter_frequency.xs(group, level="group_type", drop_level=False)
+    for group, geno in selected:  # Now iterating over (group, genotype)
+        freqs = encounter_frequency.xs((group, geno), level=["group_type", "genotype"], drop_level=False)
 
         if len(freqs) > 1:
-            sns.kdeplot(freqs, fill=True, label=f"{group} (N={dataset_counts[group]})")
+            sns.kdeplot(freqs, fill=True, label=f"{group}-{geno} (N={dataset_counts[group]})")
         else:
-            sns.histplot(freqs, bins=20, kde=False, label=f"{group} (N={dataset_counts[group]})", alpha=0.5)
+            sns.histplot(freqs, bins=20, kde=False, label=f"{group}-{geno} (N={dataset_counts[group]})", alpha=0.3)
 
     plt.xlabel("Encounter Frequency (per minute)")
     plt.ylabel("Density")
@@ -179,7 +181,7 @@ def plt_encounter_metrics(df, selected, group_types, encounter_duration_threshol
     plt.show()
 
 plot_functions = {
-    "heatmaps": plt_heatmaps,
+    "heatmaps": plt_heatmaps_density,
     "encounter_metrics": plt_encounter_metrics,
 }
 
