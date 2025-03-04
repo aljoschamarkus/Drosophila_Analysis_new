@@ -2,11 +2,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
-df = pd.read_pickle('/Users/aljoscha/Downloads/results/data/df_group_parameters.pkl')
-df_RGN_nomp = df.xs(('RGN', 'nompCxCrimson'), level=['group_type', 'genotype'])
-df_AIB_nomp = df.xs(('AIB', 'nompCxCrimson'), level=['group_type', 'genotype'])
+df = pd.read_pickle('/Users/aljoscha/Downloads/results/data/df_group_parameters_p2.pkl')
+df_RGN_NAN = df.xs(('RGN', 'NANxCrimson'), level=['group_type', 'genotype'])
 df_RGN_WT = df.xs(('RGN', 'WTxCrimson'), level=['group_type', 'genotype'])
-df_AIB_WT = df.xs(('AIB', 'WTxCrimson'), level=['group_type', 'genotype'])
+df_RGN_IAV = df.xs(('RGN', 'IAVxCrimson'), level=['group_type', 'genotype'])
+df_RGN_CS = df.xs(('RGN', 'CS_WT'), level=['group_type', 'genotype'])
+# df_AIB_nomp = df.xs(('AIB', 'NANxCrimson'), level=['group_type', 'genotype'])
+# df_RGN_WT = df.xs(('RGN', 'WTxCrimson'), level=['group_type', 'genotype'])
+# df_AIB_WT = df.xs(('AIB', 'WTxCrimson'), level=['group_type', 'genotype'])
 df_RGN = df.xs('RGN', level='group_type')
 df_AIB = df.xs('AIB', level='group_type')
 plt.figure(figsize=(10, 6))
@@ -31,7 +34,7 @@ def plt_ND_over_time_curve_fitting_exp_decay(df, colors, x_pos, option):
 
     radius = 6.5  # cm
     num_points = 5
-    num_trials = 10000  # Monte Carlo simulations
+    num_trials = 100000  # Monte Carlo simulations
 
     # Function to generate random points inside a circle
     def generate_random_points_in_circle(radius, num_points):
@@ -65,7 +68,7 @@ def plt_ND_over_time_curve_fitting_exp_decay(df, colors, x_pos, option):
     print(f"Average pairwise distance: {avg_pnd_mc} cm")
 
     max_frame = df.index.get_level_values('frame').max()
-    df_last_1800 = df.xs(slice(max_frame - 1799, max_frame), level='frame', drop_level=False)
+    df_last_1800 = df.xs(slice(max_frame - 2700, max_frame), level='frame', drop_level=False)
     avg_nnd = df_last_1800['NND'].mean()
     avg_pnd = df_last_1800['PND'].mean()
     # df2 = df_last_1800.groupby(['frame']).mean()
@@ -105,7 +108,6 @@ def plt_ND_over_time_curve_fitting_exp_decay(df, colors, x_pos, option):
     # plt.title("Extended Exponential Growth Fit")
     # plt.show()
     plt.axhline(avg_pnd, color=colors[0], label=f'{option} avg PND min 3-4: {avg_pnd:.3f}', linestyle='dashed')
-    plt.axhline(avg_pnd_mc, color='purple', label=f'statistical avg: {avg_pnd_mc:.3f}', linestyle='dotted')
     # plt.axhline(avg_pnd_mc, x_0, 4, color='green', label=f'avg PND mc simulation: {avg_pnd_mc:.3f}')
 
     # plt.text(x_pos, 0.2, f'fitted curve: $y = {a_exp:.3f}(1 - e^{{-{b_exp:.3f}x}}) + {c_exp:.3f}$',
@@ -114,6 +116,7 @@ def plt_ND_over_time_curve_fitting_exp_decay(df, colors, x_pos, option):
              transform=plt.gca().transAxes, fontsize=10, verticalalignment='center', color=colors[1])
     plt.text(x_pos, 0.45, f'delayed start: {dt:.3f}',
              transform=plt.gca().transAxes, fontsize=10, verticalalignment='center', color=colors[1])
+    plt.axhline(avg_pnd_mc, color='purple', label=f'statistical avg: {avg_pnd_mc:.3f}', linestyle='dotted')
 
     plt.legend()
     plt.xlabel("Time (min)")
@@ -124,8 +127,10 @@ def plt_ND_over_time_curve_fitting_exp_decay(df, colors, x_pos, option):
 
     print(f'y = {a_exp:.2f}(1 - e^(-{b_exp:.2f}x)) + {c_exp:.2f}')
 
-plt_ND_over_time_curve_fitting_exp_decay(df_AIB, colors[1], 0.7, 'Individuals')
-plt_ND_over_time_curve_fitting_exp_decay(df_RGN, colors[0], 0.4, 'Groups')
+plt_ND_over_time_curve_fitting_exp_decay(df_RGN_NAN, colors[1], 0.7, 'NAN')
+plt_ND_over_time_curve_fitting_exp_decay(df_RGN_IAV, colors[2], 0.1, 'IAV')
+plt_ND_over_time_curve_fitting_exp_decay(df_RGN_WT, colors[0], 0.4, 'WT')
+# plt_ND_over_time_curve_fitting_exp_decay(df_RGN_CS, colors[3], 0.4, 'CS')
 # plt_ND_over_time_curve_fitting_exp_decay(df_RGN_WT, colors[2], 0, 'RGN-WT')
 # plt_ND_over_time_curve_fitting_exp_decay(df_AIB_WT, colors[3], 0, 'AIB-WT')
 
