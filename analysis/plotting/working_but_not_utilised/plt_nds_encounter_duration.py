@@ -24,3 +24,6 @@ sns.kdeplot(df2['nearest_neighbor_distance'], fill=True, color='r')
 sns.kdeplot(df22['nearest_neighbor_distance'], fill=True, color='b')
 plt.show()
 
+
+
+
