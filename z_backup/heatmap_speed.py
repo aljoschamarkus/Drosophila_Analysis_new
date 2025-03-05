@@ -1,8 +1,8 @@
 import pandas as pd
 
-df = pd.read_pickle('/Users/aljoscha/Downloads/results/data/df_initial.pkl')
+df = pd.read_pickle('/Users/aljoscha/Downloads/results/data/df_initial_NAN_IAV.pkl')
 selected = {
-    'group': 'nompCxCrimson'
+    'group': 'NANxCrimson'
 }
 
 print("Index names:", df.index.names)
@@ -44,7 +44,8 @@ def plt_heatmaps_density(df, selected): # , result_dir):
                             speed_bin = df_bin['speed'].values
 
                             # Filter out speeds above 30
-                            valid_indices = speed_bin <= 20
+                            valid_indices = speed_bin <= 5
+
                             x_bin = x_bin[valid_indices]
                             y_bin = y_bin[valid_indices]
                             speed_bin = speed_bin[valid_indices]

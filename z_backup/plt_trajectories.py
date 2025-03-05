@@ -3,7 +3,6 @@ import cv2
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import figure
 
 def handle_main_dir(main_directory, condition):
     group_dir, single_dir = None, None  # Initialize variables with default values
@@ -28,12 +27,6 @@ def handle_main_dir(main_directory, condition):
 main_dir = "/Users/aljoscha/Downloads/2012_nompC_Crimson_WT_4min_50p_TRex_beta_2101"
 condition = ["group", "single"]
 genotype = ["nompCxCrimson", "WTxCrimson", "nompCxWT"]
-stimulation_used = "625nm 1µW/mm^2"
-colors = [['#e41a1c', '#377eb8', '#4daf4a'], ['#fbb4ae', '#a6cee3', '#b2df8a']]
-line_styles = ["-", "--"]
-quality = [1296, 972]
-group_size = 5
-data_len = 7190
 dish_radius = 6.5
 
 genotype_mapping = {
@@ -125,8 +118,3 @@ for i in range(len(condition_dir)-1):
         plt.ylim(y - (radius + 20), y + (radius + 20))
         plt.show()
         print(sub_dir)
-
-
-
-
-print()
