@@ -11,19 +11,19 @@ from package.util_data_preperation import compute_pairwise_distances_and_encount
 
 from package import config_settings
 
-# Constants and configuration
-main_dir = config_settings.main_dir_p2
-genotype = config_settings.genotype_p2
-quality = config_settings.quality
-dish_radius = config_settings.dish_radius
-group_size = config_settings.group_size
-bootstrap_reps = config_settings.bootstrap_reps_p2
+project = 'NAN_IAV'
 
-fps = config_settings.fps
-speed_initial_threshold = config_settings.speed_initial_threshold
-speed_avg_threshold = config_settings.speed_avg_threshold
-speed_avg_window = config_settings.speed_avg_window
-encounter_distance_threshold = config_settings.encounter_distance_threshold
+# Constants and configuration
+main_dir = "/Users/aljoscha/Downloads/0203_IAV_NAN"
+genotype = config_settings.genotype_p2
+circle_default = [7, 7, 6.5]
+group_size = 5
+bootstrap_reps = 10
+
+fps = 30
+# speed_avg_threshold = config_settings.speed_avg_threshold
+# speed_avg_window = 5
+encounter_distance_threshold = 0.5
 
 counter = 0
 
@@ -76,7 +76,7 @@ for sub_dir in os.listdir(main_dir):
                 detected_circles = np.uint16(np.around(detected_circles))
                 largest_circle = max(detected_circles[0, :], key=lambda c: c[2])
                 x_mid, y_mid, radius = largest_circle
-                conversion_factor = dish_radius / radius
+                conversion_factor = circle_default[2] / radius
             break  # Stop after processing the first image
 
     # Process CSV files in the subdirectory
@@ -95,10 +95,48 @@ for sub_dir in os.listdir(main_dir):
                 csv_data['Y#wcentroid (cm)'] -= y_mid
                 csv_data['X#wcentroid (cm)'] *= conversion_factor
                 csv_data['Y#wcentroid (cm)'] *= conversion_factor
-                csv_data['X#wcentroid (cm)'] += 7
-                csv_data['Y#wcentroid (cm)'] += 7
+                csv_data['X#wcentroid (cm)'] += circle_default[0]
+                csv_data['Y#wcentroid (cm)'] += circle_default[1]
                 csv_data['SPEED#wcentroid (cm/s)'] *= conversion_factor
-                csv_data['speed_processed'] = csv_data['SPEED#wcentroid (cm/s)']
+                csv_data['speed_trex'] = csv_data['SPEED#wcentroid (cm/s)']
+
+
+                def compute_speed(csv_data, fps=fps):
+                    """Calculate speed in cm/s from position data."""
+                    dx = csv_data['X#wcentroid (cm)'].diff()
+                    dy = csv_data['Y#wcentroid (cm)'].diff()
+                    csv_data['speed_manual'] = np.sqrt(dx ** 2 + dy ** 2) * fps
+                    return csv_data
+
+
+                # def smooth_speed(csv_data, window=5, method='rolling', input_speed='speed_manual'):
+                #     from scipy.signal import savgol_filter
+                #     """Smooth speed using a rolling average or Savitzky-Golay filter."""
+                #     if method == 'rolling':
+                #         csv_data[input_speed] = csv_data[input_speed].rolling(window=window, center=True).mean()
+                #     elif method == 'savgol':
+                #         csv_data[input_speed] = savgol_filter(csv_data[input_speed], window_length=window, polyorder=2,
+                #                                               mode='interp')
+                #     return csv_data
+
+
+                csv_data = compute_speed(csv_data, fps)
+                # csv_data = smooth_speed(csv_data, speed_avg_window, method='rolling', input_speed='speed_processed')
+                # csv_data = smooth_speed(csv_data, speed_avg_window, method='rolling', input_speed='speed_manual')
+
+                # def plot_speed(csv_data):
+                #     """Plot original and smoothed speed."""
+                #     import matplotlib.pyplot as plt
+                #     plt.figure(figsize=(10, 5))
+                #     plt.plot(csv_data['frame'], csv_data['speed_manual'], label='manual Speed', linewidth=2)
+                #     plt.plot(csv_data['frame'], csv_data['speed_processed'], label='Processed Speed', linewidth=2)
+                #     plt.xlabel('Frame')
+                #     plt.ylabel('Speed (cm/s)')
+                #     plt.legend()
+                #     plt.show()
+                #
+                #
+                # plot_speed(csv_data)
 
                 csv_data['midline_offset_signless'] = np.abs(csv_data['MIDLINE_OFFSET'])
                 csv_data['sub_dir'] = sub_dir
@@ -119,7 +157,7 @@ df_initial.rename(columns={
     'Y#wcentroid (cm)': 'y'
 }, inplace=True)
 
-df_initial.to_pickle(os.path.join(results_data_dir, "df_initial_p2.pkl"))
+df_initial.to_pickle(os.path.join(results_data_dir, f"df_initial_{project}.pkl"))
 
 # Mapping Functions
 mapping_functions = {
@@ -150,7 +188,7 @@ map_AIB['group_type'] = 'AIB'
 map_combined = pd.concat([map_RGN, map_AIB])
 df_merged = df_initial.reset_index().merge(map_combined, on='individual_id', how='inner')
 df_groups = df_merged.set_index(['sub_dir', 'condition', 'genotype', 'group_type', 'group_id', 'individual_id', 'frame'])
-df_groups.to_pickle(os.path.join(results_data_dir, "df_groups_p2.pkl"))
+# df_groups.to_pickle(os.path.join(results_data_dir, "df_groups_p2.pkl"))
 
 df_group_parameters = compute_pairwise_distances_and_encounters(df_groups, encounter_distance_threshold)
-df_group_parameters.to_pickle(os.path.join(results_data_dir, "df_group_parameters_p2.pkl"))
+df_group_parameters.to_pickle(os.path.join(results_data_dir, f"df_group_parameters_{project}.pkl"))

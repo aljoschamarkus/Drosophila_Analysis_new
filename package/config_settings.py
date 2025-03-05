@@ -36,7 +36,7 @@ data_len = 7191 # Number of frames
 
 speed_initial_threshold = 30 * 40 # cm/s
 speed_avg_threshold = [0, 10] # cm/s
-speed_avg_window = 3 # frames
+speed_avg_window = 5 # frames
 
 
 encounter_distance_threshold = 0.5 # cm
