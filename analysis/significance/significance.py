@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from package.config_settings import encounter_duration_threshold
 
-df = pd.read_pickle('/Users/aljoscha/Downloads/results/data/df_group_parameters_p2.pkl')
+df = pd.read_pickle('/Users/aljoscha/Downloads/Data_Drosophila/results/data/df_group_parameters_NAN_IAV.pkl')
 print("Index names:", df.index.names)
 print("Columns:", df.columns.tolist())
 df_WT = df.xs(('WTxCrimson', 'RGN'), level=['genotype', 'group_type'])
@@ -79,3 +79,45 @@ def bootstrap_test(data1, data2, n_bootstrap=10000, one_sided=False):
 p_value, effect_size = bootstrap_test(WT_dur, IAV_dur, n_bootstrap=10000)
 print(f'P-value: {p_value}')
 print(f'Cohen’s d (Effect Size): {effect_size}')
+
+import numpy as np
+import pandas as pd
+from scipy.stats import mannwhitneyu, kruskal, friedmanchisquare
+from scikit_posthocs import posthoc_dunn
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Example data
+data = pd.DataFrame({
+    'Group': ['A', 'A', 'B', 'B', 'C', 'C'],  # Group labels
+    'Speed': [1.2, 1.5, 1.8, 1.6, 1.4, 1.3],  # Example measure
+    'Midline_Offset': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+    # Add other measures here
+})
+
+# KDE Plot for Speed
+sns.kdeplot(data=data, x='Speed', hue='Group', fill=True)
+plt.title('KDE Plot of Speed by Group')
+plt.show()
+
+# Mann-Whitney U Test for Speed (Group A vs. Group B)
+group_A = data[data['Group'] == 'A']['Speed']
+group_B = data[data['Group'] == 'B']['Speed']
+stat, p = mannwhitneyu(group_A, group_B)
+print(f"Mann-Whitney U for Speed: stat={stat}, p={p}")
+
+# Kruskal-Wallis Test for Speed (Group A, B, C)
+group_A = data[data['Group'] == 'A']['Speed']
+group_B = data[data['Group'] == 'B']['Speed']
+group_C = data[data['Group'] == 'C']['Speed']
+stat, p = kruskal(group_A, group_B, group_C)
+print(f"Kruskal-Wallis for Speed: stat={stat}, p={p}")
+
+# Post-hoc Dunn's Test
+posthoc = posthoc_dunn(data, val_col='Speed', group_col='Group', p_adjust='bonferroni')
+print(posthoc)
+
+# Friedman Test for PND Over Time (example with repeated measures)
+pnd_data = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])  # Example data
+stat, p = friedmanchisquare(*pnd_data)
+print(f"Friedman Test for PND Over Time: stat={stat}, p={p}")

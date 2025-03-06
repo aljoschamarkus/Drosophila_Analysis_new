@@ -7,7 +7,7 @@ from package.util_data_preperation import handle_main_dir_p2
 from package.util_significance import bootstrap_test
 
 # Constants
-MAIN_DIR = "/Users/aljoscha/Downloads/Th_Chrimson"
+MAIN_DIR = "/Users/aljoscha/Downloads/Data_Drosophila/Th"
 FPS = 30
 RESULTS_DATA_DIR, RESULTS_PLT_DIR = handle_main_dir_p2()
 
@@ -69,7 +69,7 @@ def plot_metric(df, selected, metric, bins, colors):
 
         for ii in range(bins):
             bin_data = genotype_data[bin_labels == ii][metric]
-            light = "off" if i == 0 else "on"
+            light = "off" if ii == 0 else "on"
 
             sns.kdeplot(bin_data, fill=True, alpha=0.05, label=f"{genotype} light {light}", color=colors[i][ii], clip=(0, 1))
             bin_data = bin_data.replace([np.inf, -np.inf], np.nan).dropna().values
@@ -78,7 +78,7 @@ def plot_metric(df, selected, metric, bins, colors):
     if metric == 'speed_manual':
         plt.xlim(-0.1, 4)
     elif metric == 'midline_offset':
-        plt.xlim(-0.1, 1)
+        plt.xlim(0, 1)
     plt.legend(loc=1)
     plt.ylabel("Density")
     plt.xlabel(f"{metric} (cm/s)" if metric == 'speed_manual' else metric)
@@ -123,12 +123,18 @@ def main():
 
     data = plot_metric(df_initial, selected, metric, bins, colors)
 
-    p_value_th, cohen_d_th = bootstrap_test(data[0], data[1])
-    p_value_wt, cohen_d_wt = bootstrap_test(data[2], data[3])
-    print(f"Th: p-value={p_value_th}, Cohen's d={cohen_d_th}")
-    print(f"WT: p-value={p_value_wt}, Cohen's d={cohen_d_wt}")
+    p_value_th_on_off, cohen_d_th_on_off = bootstrap_test(data[0], data[1])
+    p_value_wt_on_off, cohen_d_wt_on_off = bootstrap_test(data[2], data[3])
+    p_value_th_on_wt_on, cohen_d_th_on_wt_on = bootstrap_test(data[1], data[3])
+    p_value_th_off_wt_off, cohen_d_th_off_wt_off = bootstrap_test(data[0], data[2])
 
-    csv_sNPF_path = "/Users/aljoscha/Downloads/sNPF_test/data/sNPFsingle_onoff_Video_fish0.csv"
+    print(f"th_on_off: p-value={p_value_th_on_off}, Cohen's d={cohen_d_th_on_off}")
+    print(f"wt_on_off: p-value={p_value_wt_on_off}, Cohen's d={cohen_d_wt_on_off}")
+    print(f"th_on_wt_on: p-value={p_value_th_on_wt_on}, Cohen's d={cohen_d_th_on_wt_on}")
+    print(f"th_off_wt_off: p-value={p_value_th_off_wt_off}, Cohen's d={cohen_d_th_off_wt_off}")
+
+
+    csv_sNPF_path = "/Users/aljoscha/Downloads/Data_Drosophila/sNPF/data/sNPFsingle_onoff_Video_fish0.csv"
     bin_on, bin_off = analyze_sNPF_data(csv_sNPF_path, FPS)
 
     colors_sNPF = ['red', 'salmon']
@@ -143,10 +149,10 @@ def main():
     if metric_sNPF == 'speed_manual':
         plt.xlim(-0.1, 100)
     elif metric_sNPF == 'midline_offset':
-        plt.xlim(-0.1, 1)
+        plt.xlim(0, 1)
     plt.legend(loc=1)
     plt.ylabel("Density")
-    plt.xlabel(f"{metric_sNPF} (cm/s)")
+    plt.xlabel(f"{metric_sNPF}")
     plt.show()
 
     bin_on_data = bin_on[metric_sNPF].replace([np.inf, -np.inf], np.nan).dropna().values

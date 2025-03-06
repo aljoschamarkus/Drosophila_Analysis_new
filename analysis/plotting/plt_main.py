@@ -2,9 +2,9 @@ import pandas as pd
 from package.util_plot import main_plot
 
 # df_initial = pd.read_pickle('/Users/aljoscha/Downloads/results/data/df_initial_nompC.pkl')
-df_initial = pd.read_pickle('/Users/aljoscha/Downloads/results/data/df_initial_NAN_IAV.pkl')
+# df_initial = pd.read_pickle('/Users/aljoscha/Downloads/results/data/df_initial_NAN_IAV.pkl')
 # df_groups = pd.read_pickle('/Users/aljoscha/Downloads/results/data/df_group_parameters_nompC.pkl')
-df_groups = pd.read_pickle('/Users/aljoscha/Downloads/results/data/df_group_parameters_NAN_IAV.pkl')
+df_groups = pd.read_pickle('/Users/aljoscha/Downloads/Data_Drosophila/results/data/df_group_parameters_NAN_IAV.pkl')
 
 # df_initial = pd.read_pickle('/Users/aljoscha/Downloads/results/data/df_initial_sNPF.pkl')
 # print(df_initial)
@@ -21,9 +21,9 @@ selected_initial = [
     # ('single', 'CS_WT'),
 ]
 selected_group = [
+    ('RGN', 'WTxCrimson'),
     ('AIB', 'WTxCrimson'),
-    ('AIB', 'NANxCrimson'),
-    ('AIB', 'NANxWT'),
+    # ('RGN', 'NANxWT'),
 ]
 
 # plot_functions = {
@@ -50,9 +50,9 @@ colors = [['blue','cornflowerblue'], ['red', 'salmon'], ['green', 'mediumseagree
 # arguments = df_initial, selected_initial, num_bins
 # inputs = name, *arguments
 
-# name = "encounter_metrics"
-# arguments = df_groups, selected_group, encounter_duration_threshold, metric2
-# inputs = name, *arguments
+name = "encounter_metrics"
+arguments = df_groups, selected_group, encounter_duration_threshold, metric2
+inputs = name, *arguments
 # #
 # name = "nd_kde"
 # arguments = df_groups, selected_group, ND1
@@ -66,9 +66,9 @@ colors = [['blue','cornflowerblue'], ['red', 'salmon'], ['green', 'mediumseagree
 # arguments = df_groups, selected_group, encounter_duration_threshold, metric1, num_bins
 # inputs = name, *arguments
 
-name = "nd_ot_cv"
-arguments = df_groups, colors, selected_group, 'PND', 0, 2700, 10, 10000
-inputs = name, *arguments
+# name = "nd_ot_cv"
+# arguments = df_groups, colors, selected_group, 'PND', 0, 2700, 10, 10000
+# inputs = name, *arguments
 
 # name = "speed_mo"
 # arguments = df_initial, selected_initial, metric3
